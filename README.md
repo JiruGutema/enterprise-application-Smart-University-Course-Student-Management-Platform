@@ -74,3 +74,63 @@ Based on the functional objectives and business value, the platform’s major bu
 | **SUPPORTING Domain 2** | **Assessment & Student Grading**                | Handles creation and management of assignments, exams, and grade records. Tracks student performance and provides transparency of results. Supports instructors in evaluating learning outcomes and complements the core course management functionality.                                |
 | **SUPPORTING Domain 3** | **Content Management & AI Academic Assistance** | Organizes and provides access to learning materials (PDFs, notes, resources) and includes the AI Academic Assistant, which answers student questions, summarizes content, and supports learning. Enhances the core domain by providing immediate, context-aware guidance.                |
 | **GENERIC Domain**      | **User & Identity Management**                  | Responsible for user authentication, role management, and access control. This domain is generic and can leverage standard solutions like Keycloak, as it provides basic identity services without containing unique academic business logic.                                            |
+
+
+
+# 4. User Stories
+
+## 4.1 Story 1: Course Creation
+
+**User Story:**  
+When an Instructor creates a new course, the system prepares enrollment, materials and AI assistant for that course.
+
+**Bounded Contexts Involved:**  
+- Course Management Context  
+- Enrollment Context  
+- Material Context  
+- AI Assistant Context  
+
+**Domain Event:**  
+**Published:**  
+- CourseCreated  
+
+**Subscribed By:**  
+- Enrollment Context  
+- Material Context  
+- AI Assistant Context  
+
+**Eventual Consistency:**  
+After the course is saved, Course Management publishes a **CourseCreated** event.  
+Other contexts listen for the event and update themselves asynchronously:  
+- Enrollment creates an enrollment slot for the course.  
+- Materials creates a folder record for future uploads.  
+- AI Assistant creates a new space for storing embeddings later.
+
+---
+
+## 4.2 Story 2: Student Enrollment
+
+**User Story:**  
+When a student enrolls in a course, the system grants access to materials and activates AI tutoring for that course.
+
+**Bounded Contexts Involved:**  
+- Course Management Context  
+- Enrollment Context  
+- Material Context  
+- AI Assistant Context  
+
+**Domain Event:**  
+**Published:**  
+- StudentEnrolled  
+
+**Subscribed By:**  
+- Course Management Context  
+- Material Context  
+- AI Assistant Context  
+
+**Eventual Consistency:**  
+Enrollment Context saves the enrollment, then sends a **StudentEnrolled** event.  
+Other contexts react asynchronously:  
+- Course Management updates the displayed enrollment number.  
+- Materials gives the student access to PDFs.  
+- AI Assistant allows the student to ask questions about the course.
