@@ -99,7 +99,7 @@ Technical Boundary
   - Stores its own enrollment records, progress, and statuses independently.
 
 
-## **3.1 Bounded Context Definitions 
+## 3.1 Bounded Context Definitions 
 User Management Context - A context dedicated to identity, authentication, and role management.
 Course Management Context - A context focused on course creation, structuring, content definition, and instructor assignment.
 Enrollment Context - A context responsible for handling enrollment actions, prerequisite validation, and tracking student progress.
