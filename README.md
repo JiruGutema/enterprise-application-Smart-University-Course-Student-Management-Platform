@@ -75,23 +75,23 @@ Based on the functional objectives and business value, the platform’s major bu
 | **SUPPORTING Domain 3** | **Content Management & AI Academic Assistance** | Organizes and provides access to learning materials (PDFs, notes, resources) and includes the AI Academic Assistant, which answers student questions, summarizes content, and supports learning. Enhances the core domain by providing immediate, context-aware guidance.                |
 | **GENERIC Domain**      | **User & Identity Management**                  | Responsible for user authentication, role management, and access control. This domain is generic and can leverage standard solutions like Keycloak, as it provides basic identity services without containing unique academic business logic.                                            |
 
-## **3.0 Tactical Domain Design: Bounded Contexts
+## 3.0 Tactical Domain Design: Bounded Contexts
 
-Bounded Context 1: User Management Context
+**Bounded Context 1: User Management Context**
 Technical Boundary
   - Has its own isolated codebase, modules, and database tables dedicated only to user identity
   - Contains ONLY logic for authentication, authorization, password hashing, and role definitions.
   - Does NOT contain any course logic, enrollment rules, progress tracking, or prerequisites.
   - Exposes user identity through public APIs or domain events, never through direct database access.
   
-Bounded Context 2: Course Management Context
+**Bounded Context 2: Course Management Context**
 Technical Boundary
   - Maintains a separate codebase where all course-related aggregates exist (Course, Module, Lesson).
   - Contains ONLY logic for creating, updating, structuring, and publishing courses.
   - Does NOT handle user accounts, authentication, or any enrollment transactions.
   - Provides course availability and metadata to other contexts through API endpoints or messages.
   
-Bounded Context 2: Enrollment Context
+**Bounded Context 2: Enrollment Context**
 Technical Boundary
   - Entirely separate module responsible for enrollment rules and policies.
   - Includes ONLY logic for registering students, tracking their progress, validating prerequisites, and processing drop/add requests.
@@ -112,7 +112,7 @@ Enrollment Context - A context responsible for handling enrollment actions, prer
 | **Course Management Context** | This context is ONLY responsible for the lifecycle of course aggregates: creation, syllabus structure, and faculty assignment. |
 | **Enrollment Context**        | This context is ONLY responsible for transactional enrollment actions: recording student registration, drop/add requests, and validating prerequisites. |
 
-## **4.0 User Stories**
+## *4.0 User Stories**
 ### **4.3 Story 3: User Information Update**
 This final story shows how we keep critical user information synchronized across the system using asynchronous events. This is essential for data integrity when different contexts own different parts of the overall data.
 | **Detail** | **Description** |
