@@ -185,3 +185,33 @@ This final story shows how we keep critical user information synchronized across
 The AI Academic Assistant provides students with accurate, course-specific support by using Retrieval-Augmented Generation (RAG). Instead of giving generic answers, it retrieves relevant sections from uploaded course materials—such as PDFs, slides, and notes—and uses them to generate grounded explanations, summaries, and answers to student questions. This ensures that all responses are fact-based and aligned with the instructor’s content.
 
 The feature helps students understand difficult topics, review materials faster, and study more independently. Technically, it uses a vector database (e.g., pgvector or Pinecone) to store embeddings and a modern LLM (such as Gemini or GPT) to produce the final response. The RAG pipeline runs inside a dedicated backend module that later becomes a microservice, handling document embedding, retrieval, and secure AI reasoning.
+### **5.2 Phased Implementation Strategy**
+**Phase 1:Modular Monolith**
+The project will first start as a Modular Monolith.
+This means we will put everything in one application, but each Bounded Context will still be kept in its own folder or package. For example:
+-User module
+-Course module
+-Enrollment module
+-AI Assistant module
+
+
+
+They will all stay in one deployment, but they will be organized separately so it’s easier for us to develop and understand.
+This makes it easier for us to build the system quickly and test everything together without dealing with the complexity of microservices at the beginning. So that it allows for fast development and easier initial integration.
+  **Phase 2: Microservice Extraction**
+When the project grows, we will move one module out of the monolith and make it a separate microservice.
+The first one we plan to extract is the AI Assistant module.
+The reason we choose AI Assistant module is 
+-It does not depend a lot on the main database.
+
+-It mostly reads data and doesn’t change core things like courses or enrollments.
+
+-It can easily communicate with the main system using simple APIs or events.
+
+-It is a special feature that we may want to scale separately (for example, if many students start using it at once).
+
+
+Because of these reasons, the AI Assistant is the best and easiest module to turn into a microservice first.
+ This also shows a clear plan for moving from a Monolith to Microservices, which is required in the assignment.
+### **6.0 Conclusion & Group Summary**
+To sum everything up, our Smart University Platform meets the requirements by using DDD to split the system into clear parts like Users, Courses, Enrollment, and the AI Assistant. Doing it this way helped us understand the system better and build each part based on real university needs. The AI features also make the platform more helpful since they can guide students and support them in their studies. We also explained that the system will first start as a simple Modular Monolith and later move into Microservices when it grows, so the whole thing can scale in the future. Overall, we believe the design is strong enough and ready to be implemented. As a team, we will do our best to build this platform step by step.
