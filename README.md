@@ -1,13 +1,16 @@
 # Group Members
-| **Group Name**       | **Group ID** |
-|----------------------|--------------|
-| Jiru Gutema | 5902       |
-| Anansi Sime | 5903       |
+
+| **Full Name** | **ID** |
+| -------------- | ------------ |
+| Jiru Gutema    | UGR/5902/15  |
+| Anansi Sime    | UGR/9691/15  |
+| venusia biruk  | ugr/3522/15  |
+| Yodit Debebe   | UGR/8065/15  |
+| Tsion Shimelis | UGR/0654/15  |
 
 # **Project Proposal**
 
 **Project Name:** Smart University Course & Student Management Platform (with AI Academic Assistant)
-
 
 ## **ABSTRACT**
 
@@ -17,7 +20,6 @@ The project hypothesizes that a modular, domain-driven platform integrated with 
 
 The potential impact includes reduced administrative overhead, improved academic support, faster access to course materials, and a more transparent grading process. The platform could serve as a model for modernizing university academic systems both locally and regionally.
 
-
 ## **1. INTRODUCTION**
 
 ### **1.1 Background**
@@ -26,10 +28,9 @@ At Addis Ababa University, students currently rely on multiple systems for acade
 
 The motivation for this project is to **consolidate these fragmented processes into a single, unified platform** that improves academic efficiency and learning outcomes. The primary users of this system are university students, instructors, and administrative staff. The project aims to deliver a new platform that integrates course management, student enrollment, grading, content management, and AI-powered academic assistance. Development is expected to take one academic term, with the university as the sponsoring organization. The solution may also benefit future projects involving academic automation or AI integration in higher education.
 
-
 ### **1.2 The Existing System**
-Currently, academic tasks are managed using multiple disconnected methods, including the university portal for viewing results, Google Classroom for file sharing, and Telegram for additional resource distribution. While functional, these systems lack integration, centralized grading, and continuous academic support, motivating the need for a unified platform.
 
+Currently, academic tasks are managed using multiple disconnected methods, including the university portal for viewing results, Google Classroom for file sharing, and Telegram for additional resource distribution. While functional, these systems lack integration, centralized grading, and continuous academic support, motivating the need for a unified platform.
 
 ### **1.3 Statement of the Problem**
 
@@ -40,7 +41,6 @@ Currently, academic tasks are managed using multiple disconnected methods, inclu
 | **And results in**         | Increased administrative overhead, student confusion, delayed feedback, and inconsistent academic performance tracking.                                                                                                                                                   |
 | **Benefits of a solution** | A unified platform that integrates course management, grading, material access, and AI-based academic support. Benefits include improved transparency, streamlined administration, better learning outcomes, and enhanced communication between students and instructors. |
 
-
 ### **1.4 Objective of the Project**
 
 #### **1.4.1 General Objective**
@@ -49,12 +49,11 @@ To develop a Smart University Course & Student Management Platform that consolid
 
 #### **1.4.2 Specific Objectives**
 
-* Enable students to view courses, enroll, access materials, and track grades.
-* Allow instructors to manage courses, upload materials, and record grades efficiently.
-* Provide an AI Academic Assistant capable of summarizing materials and answering course-related questions.
-* Implement a modular architecture that can evolve from a monolith to a microservice for the AI component.
-* Enhance transparency and accessibility of academic performance for students and faculty.
-
+- Enable students to view courses, enroll, access materials, and track grades.
+- Allow instructors to manage courses, upload materials, and record grades efficiently.
+- Provide an AI Academic Assistant capable of summarizing materials and answering course-related questions.
+- Implement a modular architecture that can evolve from a monolith to a microservice for the AI component.
+- Enhance transparency and accessibility of academic performance for students and faculty.
 
 ### **1.5 Proposed System**
 
