@@ -79,31 +79,29 @@ Based on the functional objectives and business value, the platform’s major bu
 
 Bounded Context 1: User Management Context
 Technical Boundary
-  Has its own isolated codebase, modules, and database tables dedicated only to user identity
-  Contains ONLY logic for authentication, authorization, password hashing, and role definitions.
-  Does NOT contain any course logic, enrollment rules, progress tracking, or prerequisites.
-  Exposes user identity through public APIs or domain events, never through direct database access.
+  - Has its own isolated codebase, modules, and database tables dedicated only to user identity
+  - Contains ONLY logic for authentication, authorization, password hashing, and role definitions.
+  - Does NOT contain any course logic, enrollment rules, progress tracking, or prerequisites.
+  - Exposes user identity through public APIs or domain events, never through direct database access.
   
 Bounded Context 2: Course Management Context
 Technical Boundary
-  Maintains a separate codebase where all course-related aggregates exist (Course, Module, Lesson).
-  Contains ONLY logic for creating, updating, structuring, and publishing courses.
-  Does NOT handle user accounts, authentication, or any enrollment transactions.
-  Provides course availability and metadata to other contexts through API endpoints or messages.
+  - Maintains a separate codebase where all course-related aggregates exist (Course, Module, Lesson).
+  - Contains ONLY logic for creating, updating, structuring, and publishing courses.
+  - Does NOT handle user accounts, authentication, or any enrollment transactions.
+  - Provides course availability and metadata to other contexts through API endpoints or messages.
   
 Bounded Context 2: Enrollment Context
 Technical Boundary
-  Entirely separate module responsible for enrollment rules and policies.
-  Includes ONLY logic for registering students, tracking their progress, validating prerequisites, and processing drop/add requests.
-  Does NOT access the user or course database directly — relies on User Context and Course Context via APIs to fetch needed info.
-  Stores its own enrollment records, progress, and statuses independently.
+  - Entirely separate module responsible for enrollment rules and policies.
+  - Includes ONLY logic for registering students, tracking their progress, validating prerequisites, and processing drop/add requests.
+  - Does NOT access the user or course database directly — relies on User Context and Course Context via APIs to fetch needed info.
+  - Stores its own enrollment records, progress, and statuses independently.
 
 
 3.1 Bounded Context Definitions 
 User Management Context - A context dedicated to identity, authentication, and role management.
-
 Course Management Context - A context focused on course creation, structuring, content definition, and instructor assignment.
-
 Enrollment Context - A context responsible for handling enrollment actions, prerequisite validation, and tracking student progress.
 
 ## 3.2 Context Responsibilities
