@@ -4,7 +4,7 @@
 | -------------- | ------------ |
 | Jiru Gutema    | UGR/5902/15  |
 | Anansi Sime    | UGR/9691/15  |
-| venusia biruk  | ugr/3522/15  |
+| venusia biruk  | UGR/3522/15  |
 | Yodit Debebe   | UGR/8065/15  |
 | Tsion Shimelis | UGR/0654/15  |
 
