@@ -113,6 +113,63 @@ Enrollment Context - A context responsible for handling enrollment actions, prer
 | **Enrollment Context**        | This context is ONLY responsible for transactional enrollment actions: recording student registration, drop/add requests, and validating prerequisites. |
 
 ## *4.0 User Stories**
+
+## 4.1 Story 1: Course Creation
+
+**User Story:**  
+When an Instructor creates a new course, the system prepares enrollment, materials and AI assistant for that course.
+
+**Bounded Contexts Involved:**  
+- Course Management Context  
+- Enrollment Context  
+- Material Context  
+- AI Assistant Context  
+
+**Domain Event:**  
+**Published:**  
+- CourseCreated  
+
+**Subscribed By:**  
+- Enrollment Context  
+- Material Context  
+- AI Assistant Context  
+
+**Eventual Consistency:**  
+After the course is saved, Course Management publishes a **CourseCreated** event.  
+Other contexts listen for the event and update themselves asynchronously:  
+- Enrollment creates an enrollment slot for the course.  
+- Materials creates a folder record for future uploads.  
+- AI Assistant creates a new space for storing embeddings later.
+
+---
+
+## 4.2 Story 2: Student Enrollment
+
+**User Story:**  
+When a student enrolls in a course, the system grants access to materials and activates AI tutoring for that course.
+
+**Bounded Contexts Involved:**  
+- Course Management Context  
+- Enrollment Context  
+- Material Context  
+- AI Assistant Context  
+
+**Domain Event:**  
+**Published:**  
+- StudentEnrolled  
+
+**Subscribed By:**  
+- Course Management Context  
+- Material Context  
+- AI Assistant Context  
+
+**Eventual Consistency:**  
+Enrollment Context saves the enrollment, then sends a **StudentEnrolled** event.  
+Other contexts react asynchronously:  
+- Course Management updates the displayed enrollment number.  
+- Materials gives the student access to PDFs.  
+- AI Assistant allows the student to ask questions about the course.
+
 ### **4.3 Story 3: User Information Update**
 This final story shows how we keep critical user information synchronized across the system using asynchronous events. This is essential for data integrity when different contexts own different parts of the overall data.
 | **Detail** | **Description** |
