@@ -75,7 +75,7 @@ Based on the functional objectives and business value, the platform’s major bu
 | **SUPPORTING Domain 3** | **Content Management & AI Academic Assistance** | Organizes and provides access to learning materials (PDFs, notes, resources) and includes the AI Academic Assistant, which answers student questions, summarizes content, and supports learning. Enhances the core domain by providing immediate, context-aware guidance.                |
 | **GENERIC Domain**      | **User & Identity Management**                  | Responsible for user authentication, role management, and access control. This domain is generic and can leverage standard solutions like Keycloak, as it provides basic identity services without containing unique academic business logic.                                            |
 
-3.0 Tactical Domain Design: Bounded Contexts
+## **3.0 Tactical Domain Design: Bounded Contexts
 
 Bounded Context 1: User Management Context
 Technical Boundary
@@ -99,7 +99,7 @@ Technical Boundary
   Stores its own enrollment records, progress, and statuses independently.
 
 
-3.1 Bounded Context Definitions 
+## **3.1 Bounded Context Definitions 
 User Management Context - A context dedicated to identity, authentication, and role management.
 
 Course Management Context - A context focused on course creation, structuring, content definition, and instructor assignment.
@@ -114,3 +114,19 @@ Enrollment Context - A context responsible for handling enrollment actions, prer
 | **Course Management Context** | This context is ONLY responsible for the lifecycle of course aggregates: creation, syllabus structure, and faculty assignment. |
 | **Enrollment Context**        | This context is ONLY responsible for transactional enrollment actions: recording student registration, drop/add requests, and validating prerequisites. |
 
+## **4.0 User Stories**
+### **4.3 Story 3: User Information Update**
+This final story shows how we keep critical user information synchronized across the system using asynchronous events. This is essential for data integrity when different contexts own different parts of the overall data.
+| **Detail** | **Description** |
+|------------|------------------|
+| **User Goal** | As an Administrator, I want to update an Instructor's primary email address so that all courses they manage automatically reference the corrected contact details. |
+| **Contexts Involved** | User Management Context (The data owner/Publisher) → Course Management Context (The subscriber) |
+| **Published Event** | **InstructorEmailUpdated** (The event contains the InstructorId and the NewEmailAddress). |
+| **Action Taken by Subscriber** | The Course Management Context's ASP.NET Core service listens for this event. When it arrives, the service immediately updates the instructor's contact details stored within all Course records it manages. |
+| **Achieving Consistency** | Consistency is achieved **eventually**, not instantly, using a Message Broker (RabbitMQ, Kafka, etc.). The User Management service updates its database and publishes the event; the Course Management service updates its database after receiving it. |
+
+## **5.0 Architectural Strategy & AI Feature**
+### **5.1 AI-Driven Feature: Academic Assistant**
+The AI Academic Assistant provides students with accurate, course-specific support by using Retrieval-Augmented Generation (RAG). Instead of giving generic answers, it retrieves relevant sections from uploaded course materials—such as PDFs, slides, and notes—and uses them to generate grounded explanations, summaries, and answers to student questions. This ensures that all responses are fact-based and aligned with the instructor’s content.
+
+The feature helps students understand difficult topics, review materials faster, and study more independently. Technically, it uses a vector database (e.g., pgvector or Pinecone) to store embeddings and a modern LLM (such as Gemini or GPT) to produce the final response. The RAG pipeline runs inside a dedicated backend module that later becomes a microservice, handling document embedding, retrieval, and secure AI reasoning.
