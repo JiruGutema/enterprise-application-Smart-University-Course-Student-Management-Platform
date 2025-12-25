@@ -1,32 +1,44 @@
+using dotenv.net;
 using Microsoft.EntityFrameworkCore;
 using SmartUniversity.Middlewares;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddOpenApi();
+// Load .env ONLY in development
+if (builder.Environment.IsDevelopment())
+{
+    DotEnv.Load();
+}
+
+// Make env vars available to IConfiguration
+builder.Configuration.AddEnvironmentVariables();
+
+// Read connection 
+var connectionString = builder.Configuration.GetConnectionString("Default");
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen();
 
-//Users
-builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
+// Database
+builder.Services.AddDbContext<UserDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+// Modules
 builder.Services.AddUsersModule();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
+// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
