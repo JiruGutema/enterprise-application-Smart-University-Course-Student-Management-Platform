@@ -2,7 +2,7 @@ namespace SmartUniversity.Modules.Identity.Domain.Exceptions
 {
     public abstract class DomainException : Exception
     {
-        public virtual int StatusCode => StatusCodes.Status400BadRequest;
+        public virtual int StatusCode => 400;
 
         protected DomainException(string message)
             : base(message) { }
