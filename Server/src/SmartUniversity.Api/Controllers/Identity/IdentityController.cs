@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartUniversity.Modules.Identity.Application.DTO;
 using SmartUniversity.Modules.Identity.Application.Interfaces;
@@ -5,14 +6,16 @@ using SmartUniversity.Modules.Identity.Application.Interfaces;
 namespace SmartUniversity.Api.Controllers.Users
 {
     [Controller]
-    [Route("api/users")]
+    [Route("api/auth")]
     public class UserControllers : ControllerBase
     {
         private readonly IUserServices _userServices;
+        private readonly ICookieService _cookieServices;
 
-        public UserControllers(IUserServices userServices)
+        public UserControllers(IUserServices userServices, ICookieService cookieServices)
         {
             _userServices = userServices;
+            _cookieServices = cookieServices;
         }
 
         [HttpPost("register")]
@@ -22,10 +25,30 @@ namespace SmartUniversity.Api.Controllers.Users
             return CreatedAtAction(nameof(Register), user);
         }
 
-        [HttpGet]
-        public IActionResult Ping()
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest request)
         {
-            return Ok(new { message = "Pong" });
+            var (user, refreshToken, accessToken) = await _userServices.LoginAsync(request);
+
+            _cookieServices.SetLoginCookies(Response, accessToken, refreshToken);
+            return Ok(new { User = user });
+        }
+        
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken is null)
+                return Unauthorized();
+
+            var result = await _userServices.RefreshAccessTokenAsync(refreshToken);
+            _cookieServices.SetLoginCookies(
+                Response,
+                result.newAccessToken,
+                result.newRefreshToken
+            );
+
+            return Ok(new { message = "success" });
         }
     }
 }

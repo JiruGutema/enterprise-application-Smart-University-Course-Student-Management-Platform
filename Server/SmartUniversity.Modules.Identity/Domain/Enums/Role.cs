@@ -2,8 +2,8 @@ namespace SmartUniversity.Modules.Identity.Domain.Enums
 {
     public enum Role
     {
-        Student,
-        Instructor,
-        Admin,
+        Student = 0,
+        Instructor = 1,
+        Admin = 3,
     }
 }

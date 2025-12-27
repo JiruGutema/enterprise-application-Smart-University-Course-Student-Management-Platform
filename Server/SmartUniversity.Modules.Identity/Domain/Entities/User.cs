@@ -24,6 +24,7 @@ public class User
             throw new ArgumentException("Password hash is required");
 
         Id = id;
+
         Email = email;
         FullName = fullName;
         Role = role;
