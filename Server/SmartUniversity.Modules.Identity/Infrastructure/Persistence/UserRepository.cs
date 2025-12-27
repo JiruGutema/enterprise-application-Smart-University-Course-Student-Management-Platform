@@ -19,7 +19,8 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
-        public async Task<User> GetUserById(Guid id)
+        // by id
+        public async Task<User> GetUserByIdAsync(Guid id)
         {
             try
             {
@@ -31,9 +32,16 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             }
         }
 
+        // check with id
         public async Task<bool> ExistsByIdAsync(Guid id)
         {
             return await _context.Users.AnyAsync(u => u.Id == id);
+        }
+
+        // by email
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task AddAsync(User user)

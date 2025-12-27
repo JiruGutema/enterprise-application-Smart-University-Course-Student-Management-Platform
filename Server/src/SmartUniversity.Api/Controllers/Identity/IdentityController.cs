@@ -22,10 +22,18 @@ namespace SmartUniversity.Api.Controllers.Users
             return CreatedAtAction(nameof(Register), user);
         }
 
-        [HttpGet]
-        public IActionResult Ping()
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest request)
         {
-            return Ok(new { message = "Pong" });
+            var (user, refreshToken, accessToken) = await _userServices.LoginAsync(request);
+            return Ok(
+                new
+                {
+                    User = user,
+                    RefreshToken = refreshToken,
+                    AccessToken = accessToken,
+                }
+            );
         }
     }
 }
