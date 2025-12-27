@@ -6,7 +6,11 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
     {
         Task<UserResponse> RegisterAsync(CreateUserRequest request);
         Task<UserResponse> DeactivateUserAccountAsync(DeactivateUserAccountRequest request);
-  Task<(UserResponse user, string refreshToken, string accessToken)> LoginAsync(LoginRequest request);
-
+        Task<(UserResponse user, string refreshToken, string accessToken)> LoginAsync(
+            LoginRequest request
+        );
+        Task<(string newAccessToken, string newRefreshToken)> RefreshAccessTokenAsync(
+            string refreshToken
+        );
     }
 }

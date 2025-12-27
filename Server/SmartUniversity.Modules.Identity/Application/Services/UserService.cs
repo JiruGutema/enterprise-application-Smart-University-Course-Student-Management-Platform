@@ -55,7 +55,7 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                Role = user.Role,
+                Role = user.Role.ToString(),
             };
         }
 
@@ -112,7 +112,7 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 Email = user.Email,
                 FullName = user.FullName,
                 IsActive = user.IsActive,
-                Role = user.Role,
+                Role = user.Role.ToString(),
             };
 
             return (u, refreshToken, accessToken);
@@ -141,7 +141,7 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                     Id = user.Id,
                     FullName = user.FullName,
                     Email = user.Email,
-                    Role = user.Role,
+                    Role = user.Role.ToString(),
                     IsActive = user.IsActive,
                 };
             }
@@ -151,6 +151,25 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             }
 
             return res;
+        }
+
+        public async Task<(string newAccessToken, string newRefreshToken)> RefreshAccessTokenAsync(
+            string refreshToken
+        )
+        {
+            bool validate = _jwtService.ValidateToken(
+                refreshToken,
+                TokenType.Refresh,
+                out var userId
+            );
+            if (!validate)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var result = _jwtService.RefreshAccessToken(refreshToken);
+
+            return (result.newAccessToken, result.newRefreshToken);
         }
     }
 }

@@ -6,5 +6,6 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
     {
         string GenerateToken(Guid userId, string email, string role, TokenType tokenType);
         bool ValidateToken(string token, TokenType expectedType, out Guid userId);
+        (string newAccessToken, string newRefreshToken) RefreshAccessToken(string refreshToken);
     }
 }
