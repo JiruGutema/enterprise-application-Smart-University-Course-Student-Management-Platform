@@ -10,10 +10,14 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Security
     public sealed class JwtService : IJwtService
     {
         private readonly string _secret;
+        private readonly string _issuer;
+        private readonly string _audience;
 
-        public JwtService(string secret)
+        public JwtService(string secret, string issuer, string audience)
         {
             _secret = secret;
+            _issuer = issuer;
+            _audience = audience;
         }
 
         public string GenerateToken(Guid userId, string email, string role, TokenType tokenType)
@@ -40,8 +44,8 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Security
             };
 
             var token = new JwtSecurityToken(
-                issuer: "SmartUniversity",
-                audience: "SmartUniversityUsers",
+                issuer: _issuer,
+                audience: _audience,
                 claims: claims,
                 expires: expires,
                 signingCredentials: creds

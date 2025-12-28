@@ -59,6 +59,39 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             };
         }
 
+        public async Task<UserResponse> GetUserByIdAsync(Guid userId)
+        {
+            bool userExist = await _userRepository.ExistsByIdAsync(userId);
+            if (!userExist)
+            {
+                throw new UserNotFoundException();
+            }
+
+            User user;
+            try
+            {
+                user = await _userRepository.GetUserByIdAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                throw new AppException("Error while fetching user by Id", ex);
+            }
+
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            return new UserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                IsActive = user.IsActive,
+                Role = user.Role.ToString(),
+            };
+        }
+
         public async Task<(UserResponse user, string refreshToken, string accessToken)> LoginAsync(
             LoginRequest request
         )

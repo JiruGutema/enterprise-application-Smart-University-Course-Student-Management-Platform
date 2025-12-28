@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartUniversity.Modules.Identity.Application.DTO;
@@ -19,21 +20,21 @@ namespace SmartUniversity.Api.Controllers.Users
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(CreateUserRequest request)
+        public async Task<IActionResult> Register([FromBody] CreateUserRequest request)
         {
             var user = await _userServices.RegisterAsync(request);
             return CreatedAtAction(nameof(Register), user);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var (user, refreshToken, accessToken) = await _userServices.LoginAsync(request);
 
             _cookieServices.SetLoginCookies(Response, accessToken, refreshToken);
             return Ok(new { User = user });
         }
-        
+
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh()
         {
@@ -49,6 +50,17 @@ namespace SmartUniversity.Api.Controllers.Users
             );
 
             return Ok(new { message = "success" });
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            UserResponse user = await _userServices.GetUserByIdAsync(Guid.Parse(userId!));
+            return Ok(new { user = user });
         }
     }
 }
