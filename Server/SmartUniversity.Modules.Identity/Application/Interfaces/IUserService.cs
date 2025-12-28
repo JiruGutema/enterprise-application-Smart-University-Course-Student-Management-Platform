@@ -12,5 +12,6 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
         Task<(string newAccessToken, string newRefreshToken)> RefreshAccessTokenAsync(
             string refreshToken
         );
+        Task<UserResponse> GetUserByIdAsync(Guid userId);
     }
 }

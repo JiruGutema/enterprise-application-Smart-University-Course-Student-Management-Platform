@@ -1,8 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using dotenv.net;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SmartUniversity.Middlewares;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.Identity.Application.Interfaces;
@@ -24,6 +26,8 @@ builder.Configuration.AddEnvironmentVariables();
 // Read connection string from .env
 var connectionString = builder.Configuration.GetConnectionString("Default");
 var jwtSecret = builder.Configuration["JWT:Secret"];
+var jwtissuer = builder.Configuration["JWT:Issuer"];
+var jwtaudience = builder.Configuration["JWT:Audience"];
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -32,11 +36,11 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUserServices, UserServices>();
-builder.Services.AddSingleton<IJwtService>(new JwtService(jwtSecret));
+builder.Services.AddSingleton<IJwtService>(new JwtService(jwtSecret, jwtissuer, jwtaudience));
 
 //Athentication sevices
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -45,12 +49,12 @@ builder.Services
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["JWT:Issuer"],
-            ValidAudience = builder.Configuration["JWT:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]!)
-            ),
-            ClockSkew = TimeSpan.Zero
+            ValidIssuer = jwtissuer,
+            ValidAudience = jwtaudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret!)),
+            NameClaimType = JwtRegisteredClaimNames.Sub,
+            RoleClaimType = ClaimTypes.Role,
+            ClockSkew = TimeSpan.Zero,
         };
 
         options.Events = new JwtBearerEvents
@@ -59,7 +63,7 @@ builder.Services
             {
                 context.Token = context.Request.Cookies["accessToken"];
                 return Task.CompletedTask;
-            }
+            },
         };
     });
 

@@ -5,7 +5,6 @@ namespace SmartUniversity.Modules.Identity.Application.DTO
         public string Email { get; init; } = null!;
         public string Password { get; init; } = null!;
         public string FullName { get; init; } = null!;
+
     }
 }
-
-
