@@ -6,6 +6,7 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
     {
         Task<UserResponse> RegisterAsync(CreateUserRequest request);
         Task<UserResponse> DeactivateUserAccountAsync(DeactivateUserAccountRequest request);
+        Task<UserResponse> ActivateUserAccountAsync(ActivateUserAccountRequest request);
         Task<(UserResponse user, string refreshToken, string accessToken)> LoginAsync(
             LoginRequest request
         );
@@ -13,5 +14,7 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
             string refreshToken
         );
         Task<UserResponse> GetUserByIdAsync(Guid userId);
+        Task<UserResponse> GetUserByEmailAsync(string email);
+        Task<UserResponse> AdminCreateUser(AdminCreateUserRequest request);
     }
 }

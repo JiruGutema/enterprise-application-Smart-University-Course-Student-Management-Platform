@@ -12,7 +12,7 @@ using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 namespace SmartUniversity.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20251225085628_InitialMigration")]
+    [Migration("20251229050636_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace SmartUniversity.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SmartUniversity.Modules.Identity.Application.Domain.User", b =>
+            modelBuilder.Entity("SmartUniversity.Modules.Identity.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,7 +55,7 @@ namespace SmartUniversity.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("users", "identity");
                 });
 #pragma warning restore 612, 618
         }

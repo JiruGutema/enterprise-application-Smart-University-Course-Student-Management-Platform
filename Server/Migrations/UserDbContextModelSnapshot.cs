@@ -22,7 +22,7 @@ namespace SmartUniversity.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SmartUniversity.Modules.Identity.Application.Domain.User", b =>
+            modelBuilder.Entity("SmartUniversity.Modules.Identity.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +52,7 @@ namespace SmartUniversity.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("users", "identity");
                 });
 #pragma warning restore 612, 618
         }

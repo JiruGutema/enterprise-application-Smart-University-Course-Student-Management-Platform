@@ -1,6 +1,8 @@
 namespace SmartUniversity.Modules.Identity.Application.DTO
 {
-   public class DeactivateUserAccountRequest{
-     public string Id;
-   } 
+    public class DeactivateUserAccountRequest
+    {
+        public required string Id {get; init;}
+    }
 }
+

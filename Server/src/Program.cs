@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +30,12 @@ var connectionString = builder.Configuration.GetConnectionString("Default");
 var jwtSecret = builder.Configuration["JWT:Secret"];
 var jwtissuer = builder.Configuration["JWT:Issuer"];
 var jwtaudience = builder.Configuration["JWT:Audience"];
-
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -38,6 +45,12 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddSingleton<IJwtService>(new JwtService(jwtSecret, jwtissuer, jwtaudience));
 
+var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+builder.Services.AddSwaggerGen(c =>
+{
+    c.IncludeXmlComments(xmlPath);
+});
 //Athentication sevices
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -66,7 +79,6 @@ builder
             },
         };
     });
-
 builder.Services.AddAuthorization();
 
 // Database

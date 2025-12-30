@@ -11,8 +11,12 @@ namespace SmartUniversity.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "identity");
+
             migrationBuilder.CreateTable(
                 name: "users",
+                schema: "identity",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -29,6 +33,7 @@ namespace SmartUniversity.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_users_Email",
+                schema: "identity",
                 table: "users",
                 column: "Email",
                 unique: true);
@@ -38,7 +43,8 @@ namespace SmartUniversity.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "users");
+                name: "users",
+                schema: "identity");
         }
     }
 }

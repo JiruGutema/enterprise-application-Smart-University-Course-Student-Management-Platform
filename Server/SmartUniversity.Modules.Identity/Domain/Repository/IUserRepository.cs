@@ -7,7 +7,8 @@ namespace SmartUniversity.Modules.Identity.Domain.Repository
         Task<bool> ExistsByEmailAsync(string email);
         Task<bool> ExistsByIdAsync(Guid Id);
         Task<User> DeactivateUserAccount(Guid Id);
-        Task<User> GetUserByIdAsync(Guid Id);
+        Task<User> ActivateUserAccount(Guid Id);
+        Task<User?> GetUserByIdAsync(Guid Id);
         Task<User> GetUserByEmailAsync(string email);
         Task AddAsync(User user);
     }
