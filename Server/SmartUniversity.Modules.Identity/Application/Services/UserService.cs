@@ -56,6 +56,75 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 Email = user.Email,
                 FullName = user.FullName,
                 Role = user.Role.ToString(),
+                IsActive = user.IsActive,
+            };
+        }
+
+        public async Task<UserResponse> GetUserByEmailAsync(string email)
+        {
+            bool userExist = await _userRepository.ExistsByEmailAsync(email);
+            if (!userExist)
+            {
+                throw new UserNotFoundException();
+            }
+
+            User user;
+            try
+            {
+                user = await _userRepository.GetUserByEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                throw new AppException("Error while fetching user by email", ex);
+            }
+
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            return new UserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                IsActive = user.IsActive,
+                Role = user.Role.ToString(),
+            };
+        }
+
+        public async Task<UserResponse> AdminCreateUser(AdminCreateUserRequest request)
+        {
+            if (await _userRepository.ExistsByEmailAsync(request.Email))
+            {
+                throw new UserAlreadyExistsException("Email Already Exist");
+            }
+
+            var passwordHash = _passwordHasher.Hash(request.Password);
+
+            var user = new User(
+                id: Guid.NewGuid(),
+                email: request.Email,
+                fullName: request.FullName,
+                role: request.Role,
+                passwordHash: passwordHash
+            );
+            try
+            {
+                await _userRepository.AddAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new UserAlreadyExistsException("Error creating user", ex);
+            }
+
+            return new UserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                Role = user.Role.ToString(),
+                IsActive = user.IsActive,
             };
         }
 
@@ -181,6 +250,41 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             catch (Exception e)
             {
                 throw new DeactiveUserException("Error deactivating user account", e);
+            }
+
+            return res;
+        }
+
+        public async Task<UserResponse> ActivateUserAccountAsync(
+            ActivateUserAccountRequest request
+        )
+        {
+            Guid userId = Guid.Parse(request.Id);
+            if (userId == Guid.Empty)
+            {
+                throw new InvalidUserException("User Id is required to deactivate user");
+            }
+            bool userExist = await _userRepository.ExistsByIdAsync(userId);
+            if (!userExist)
+            {
+                throw new UserNotFoundException();
+            }
+            UserResponse res;
+            try
+            {
+                User? user = await _userRepository.ActivateUserAccount(userId);
+                res = new UserResponse
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    Role = user.Role.ToString(),
+                    IsActive = user.IsActive,
+                };
+            }
+            catch (Exception e)
+            {
+                throw new ActiveUserException("Error deactivating user account", e);
             }
 
             return res;

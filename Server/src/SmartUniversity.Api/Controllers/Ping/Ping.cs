@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SmartUniversity.Api.Controllers.Ping
 {
     [Controller]
     [Route("api/ping")]
-    public class UserControllers : ControllerBase
+    public class PingControllers : ControllerBase
     {
-        [Authorize]
         [HttpGet]
         public IActionResult Ping()
         {

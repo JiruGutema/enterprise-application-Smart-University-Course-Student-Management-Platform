@@ -14,7 +14,7 @@ public class UserDbContext : DbContext
     {
         modelBuilder.Entity<User>(entity =>
         {
-            entity.ToTable("users");
+            entity.ToTable("users", "identity");
 
             entity.HasKey(u => u.Id);
 

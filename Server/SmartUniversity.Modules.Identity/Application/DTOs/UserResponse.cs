@@ -1,13 +1,12 @@
-using SmartUniversity.Modules.Identity.Domain.Enums;
 
 namespace SmartUniversity.Modules.Identity.Application.DTO
 {
     public class UserResponse
     {
         public Guid Id { get; set; }
-        public string Email { get; init; } = null!;
-        public string FullName { get; init; } = null!;
-        public string Role { get; set; }
-        public bool IsActive { get; set; }
+        public required string Email { get; init; }
+        public required string FullName { get; init; }
+        public required string Role { get; set; }
+        public required bool IsActive { get; set; }
     }
 }
