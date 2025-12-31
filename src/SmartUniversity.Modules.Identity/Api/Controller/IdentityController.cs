@@ -5,7 +5,7 @@ using SmartUniversity.Modules.Identity.Application.DTO;
 using SmartUniversity.Modules.Identity.Application.Interfaces;
 using SmartUniversity.Modules.Identity.Domain.Enums;
 
-namespace SmartUniversity.Api.Controllers.Users
+namespace SmartUniversity.Modules.Identity.Api.Conrollers
 {
     [Controller]
     [Route("api/identity")]

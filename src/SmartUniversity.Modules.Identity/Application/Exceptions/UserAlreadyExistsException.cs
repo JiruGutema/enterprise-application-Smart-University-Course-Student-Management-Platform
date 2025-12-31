@@ -1,8 +1,10 @@
+using SmartUniversity.Shared.Exceptions;
+
 namespace SmartUniversity.Modules.Identity.Application.Exceptions
 {
-    public sealed class UserAlreadyExistsException : AppException
+    public sealed class UserAlreadyExistsException : ApplicationExceptionBase
     {
-        public override int StatusCode =>409;
+        public override int StatusCode => 409;
 
         public UserAlreadyExistsException(string message)
             : base(message) { }

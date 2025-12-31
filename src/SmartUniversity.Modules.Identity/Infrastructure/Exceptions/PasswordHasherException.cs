@@ -1,6 +1,7 @@
+using SmartUniversity.Shared.Exceptions;
 namespace SmartUniversity.Modules.Identity.Infrastructure.Exceptions
 {
-    public sealed class PasswordHashException : InfrastructureException
+    public sealed class PasswordHashException : InfrastructureExceptionBase
     {
         public override int StatusCode => 400;
 

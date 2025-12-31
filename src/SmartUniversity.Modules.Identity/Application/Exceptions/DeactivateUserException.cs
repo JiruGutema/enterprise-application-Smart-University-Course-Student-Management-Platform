@@ -1,7 +1,8 @@
+using SmartUniversity.Shared.Exceptions;
 
 namespace SmartUniversity.Modules.Identity.Application.Exceptions
 {
-    public sealed class DeactiveUserException : AppException
+    public sealed class DeactiveUserException : ApplicationExceptionBase
     {
         public override int StatusCode => 400;
 
@@ -15,5 +16,3 @@ namespace SmartUniversity.Modules.Identity.Application.Exceptions
             : base("Error deactivating user.") { }
     }
 }
-
-

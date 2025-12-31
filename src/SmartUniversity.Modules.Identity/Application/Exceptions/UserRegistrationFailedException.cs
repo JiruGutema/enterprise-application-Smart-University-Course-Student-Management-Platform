@@ -1,6 +1,8 @@
+using SmartUniversity.Shared.Exceptions;
+
 namespace SmartUniversity.Modules.Identity.Application.Exceptions
 {
-    public sealed class UserRegistrationFailedException : AppException
+    public sealed class UserRegistrationFailedException : ApplicationExceptionBase
     {
         public override int StatusCode => 400;
 

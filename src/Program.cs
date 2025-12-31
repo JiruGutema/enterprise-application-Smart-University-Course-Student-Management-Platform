@@ -7,7 +7,7 @@ using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SmartUniversity.Middlewares;
+using SmartUniversity.Api;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.Identity.Application.Interfaces;
 using SmartUniversity.Modules.Identity.Application.Services;
@@ -39,11 +39,6 @@ builder
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICookieService, CookieService>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<IUserServices, UserServices>();
-builder.Services.AddSingleton<IJwtService>(new JwtService(jwtSecret, jwtissuer, jwtaudience));
 
 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -51,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.IncludeXmlComments(xmlPath);
 });
+
 //Athentication sevices
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -85,7 +81,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
 
 // Modules
-builder.Services.AddUsersModule();
+builder.Services.AddIdentityModule(builder.Configuration);
 
 var app = builder.Build();
 

@@ -1,6 +1,8 @@
+using SmartUniversity.Shared.Exceptions;
+
 namespace SmartUniversity.Modules.Identity.Infrastructure.Exceptions
 {
-    public class UserDbContextException : InfrastructureException
+    public class UserDbContextException : InfrastructureExceptionBase
     {
         public override int StatusCode => 400;
 

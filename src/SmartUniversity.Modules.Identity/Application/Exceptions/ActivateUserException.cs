@@ -1,6 +1,8 @@
+using SmartUniversity.Shared.Exceptions;
+
 namespace SmartUniversity.Modules.Identity.Application.Exceptions
 {
-    public sealed class ActiveUserException : AppException
+    public sealed class ActiveUserException : ApplicationExceptionBase
     {
         public override int StatusCode => 400;
 

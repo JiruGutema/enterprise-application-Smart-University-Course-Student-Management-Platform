@@ -1,7 +1,9 @@
 
+using SmartUniversity.Shared.Exceptions;
 namespace SmartUniversity.Modules.Identity.Infrastructure.Exceptions
+
 {
-    public sealed class DeactiveUserException : InfrastructureException
+    public sealed class DeactiveUserException : InfrastructureExceptionBase
     {
         public override int StatusCode => 400;
 
