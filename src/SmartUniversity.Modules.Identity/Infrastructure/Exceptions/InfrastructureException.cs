@@ -1,6 +1,7 @@
+using SmartUniversity.Shared.Exceptions;
 namespace SmartUniversity.Modules.Identity.Infrastructure.Exceptions
 {
-    public abstract class InfrastructureException : Exception
+    public abstract class InfrastructureException : InfrastructureExceptionBase
     {
         public virtual int StatusCode => 400;
 

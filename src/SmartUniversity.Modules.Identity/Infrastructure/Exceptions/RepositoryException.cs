@@ -1,6 +1,7 @@
+using SmartUniversity.Shared.Exceptions;
 namespace SmartUniversity.Modules.Identity.Infrastructure.Exceptions
 {
-    public sealed class RepositoryException : InfrastructureException
+    public sealed class RepositoryException : InfrastructureExceptionBase
     {
         public override int StatusCode => 400;
 

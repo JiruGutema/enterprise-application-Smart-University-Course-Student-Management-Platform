@@ -1,6 +1,7 @@
+using SmartUniversity.Shared.Exceptions;
 namespace SmartUniversity.Modules.Identity.Domain.Exceptions
 {
-    public abstract class DomainException : Exception
+    public abstract class DomainException : DomainExceptionBase
     {
         public virtual int StatusCode => 400;
 

@@ -1,6 +1,8 @@
+using SmartUniversity.Shared.Exceptions;
+
 namespace SmartUniversity.Modules.Identity.Application.Exceptions
 {
-    public sealed class UserNotFoundException : AppException
+    public sealed class UserNotFoundException : ApplicationExceptionBase
     {
         public override int StatusCode => 404;
 

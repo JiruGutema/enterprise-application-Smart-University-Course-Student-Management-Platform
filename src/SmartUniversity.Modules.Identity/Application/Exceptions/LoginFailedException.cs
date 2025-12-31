@@ -1,6 +1,7 @@
+using SmartUniversity.Shared.Exceptions;
 namespace SmartUniversity.Modules.Identity.Application.Exceptions
 {
-    public sealed class LoginFailedException : AppException
+    public sealed class LoginFailedException : ApplicationExceptionBase
     {
         public override int StatusCode => 409;
 
