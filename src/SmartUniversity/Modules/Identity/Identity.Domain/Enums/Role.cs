@@ -4,6 +4,6 @@ namespace SmartUniversity.Modules.Identity.Domain.Enums
     {
         Student = 0,
         Instructor = 1,
-        Admin = 3,
+        Admin = 2,
     }
 }

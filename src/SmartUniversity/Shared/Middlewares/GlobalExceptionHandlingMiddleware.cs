@@ -1,6 +1,6 @@
 using SmartUniversity.Shared.Exceptions;
 
-namespace SmartUniversity.Api;
+namespace SmartUniversity.Shared.Middleware;
 
 public class GlobalExceptionHandlingMiddleware
 {

@@ -5,6 +5,7 @@ using SmartUniversity.Modules.Identity.Application.Security;
 using SmartUniversity.Modules.Identity.Domain.Entities;
 using SmartUniversity.Modules.Identity.Domain.Enums;
 using SmartUniversity.Modules.Identity.Domain.Repository;
+using SmartUniversity.Modules.Identity.Infrastructure.Exceptions;
 
 namespace SmartUniversity.Modules.Identity.Application.Services
 {
@@ -130,6 +131,10 @@ namespace SmartUniversity.Modules.Identity.Application.Services
 
         public async Task<UserResponse> GetUserByIdAsync(Guid userId)
         {
+            if (userId != Guid.Empty)
+            {
+                throw new AppException("User id is required");
+            }
             bool userExist = await _userRepository.ExistsByIdAsync(userId);
             if (!userExist)
             {
@@ -249,20 +254,18 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             }
             catch (Exception e)
             {
-                throw new DeactiveUserException("Error deactivating user account", e);
+                throw new AppException("Error deactivating user account", e);
             }
 
             return res;
         }
 
-        public async Task<UserResponse> ActivateUserAccountAsync(
-            ActivateUserAccountRequest request
-        )
+        public async Task<UserResponse> ActivateUserAccountAsync(ActivateUserAccountRequest request)
         {
             Guid userId = Guid.Parse(request.Id);
             if (userId == Guid.Empty)
             {
-                throw new InvalidUserException("User Id is required to deactivate user");
+                throw new InvalidUserException("User Id is required to activate user");
             }
             bool userExist = await _userRepository.ExistsByIdAsync(userId);
             if (!userExist)
@@ -284,7 +287,9 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             }
             catch (Exception e)
             {
-                throw new ActiveUserException("Error deactivating user account", e);
+
+              Console.WriteLine("\n here \n");
+                throw new ActiveUserException("Error activating user account", e);
             }
 
             return res;
@@ -307,6 +312,107 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             var result = _jwtService.RefreshAccessToken(refreshToken);
 
             return (result.newAccessToken, result.newRefreshToken);
+        }
+
+        public async Task<SearchUserResponse> SearchUsersAsync(SearchUserRequest request)
+        {
+            var result = await _userRepository.SearchUsersAsync(
+                request.Query,
+                request.Page,
+                request.PageSize
+            );
+
+            var users = result
+                .Items.Select(u => new UserResponse
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    Role = u.Role.ToString(),
+                    IsActive = u.IsActive,
+                })
+                .ToList();
+
+            return new SearchUserResponse
+            {
+                Data = users,
+                Total = result.TotalCount,
+                Page = request.Page,
+                PageSize = request.PageSize,
+            };
+        }
+
+        public async Task<UserResponse> UpdateUserAsync(UpdateUserProfile request, string userId)
+        {
+            Guid id = Guid.Parse(userId);
+            string? passwordHash = null;
+            if (request.Password != null)
+            {
+                passwordHash = _passwordHasher.Hash(request.Password);
+            }
+
+            bool exist = await _userRepository.ExistsByIdAsync(id);
+            if (!exist)
+            {
+                throw new UserNotFoundException();
+            }
+
+            User res = await _userRepository.UpdateUserAsync(request.Email, passwordHash, id);
+
+            UserResponse user = new UserResponse
+            {
+                Id = res.Id,
+                Email = res.Email,
+                FullName = res.FullName,
+                IsActive = res.IsActive,
+                Role = res.Role.ToString(),
+            };
+
+            return user;
+        }
+
+        public async Task<UserResponse> UpdateUserRoleAsync(
+            UpdateRoleRequest request,
+            string userId
+        )
+        {
+            Guid id = Guid.Parse(userId);
+            if (userId is null)
+            {
+                throw new AppException("user id is required");
+            }
+
+            if (request is null)
+            {
+                throw new AppException("user role is required");
+            }
+
+            Role role = request.Role;
+            bool exist = await _userRepository.ExistsByIdAsync(id);
+            if (!exist)
+            {
+                throw new UserNotFoundException();
+            }
+            User res;
+            try
+            {
+                res = await _userRepository.UpdateUserRoleAsync(role, id);
+            }
+            catch (InfrastructureException ex)
+            {
+                throw new AppException("Invalid user role", ex);
+            }
+
+            UserResponse user = new UserResponse
+            {
+                Id = res.Id,
+                Email = res.Email,
+                FullName = res.FullName,
+                IsActive = res.IsActive,
+                Role = res.Role.ToString(),
+            };
+
+            return user;
         }
     }
 }

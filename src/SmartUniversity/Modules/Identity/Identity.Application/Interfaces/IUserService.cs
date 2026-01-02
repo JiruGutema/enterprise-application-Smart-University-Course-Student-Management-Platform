@@ -1,4 +1,5 @@
 using SmartUniversity.Modules.Identity.Application.DTO;
+using SmartUniversity.Modules.Identity.Domain.Enums;
 
 namespace SmartUniversity.Modules.Identity.Application.Interfaces
 {
@@ -16,5 +17,8 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
         Task<UserResponse> GetUserByIdAsync(Guid userId);
         Task<UserResponse> GetUserByEmailAsync(string email);
         Task<UserResponse> AdminCreateUser(AdminCreateUserRequest request);
+        Task<SearchUserResponse> SearchUsersAsync(SearchUserRequest request);
+        Task<UserResponse> UpdateUserAsync(UpdateUserProfile request, string userId);
+        Task<UserResponse> UpdateUserRoleAsync(UpdateRoleRequest role, string userId);
     }
 }

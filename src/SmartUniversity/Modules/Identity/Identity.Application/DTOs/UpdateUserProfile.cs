@@ -1,0 +1,8 @@
+namespace SmartUniversity.Modules.Identity.Application.DTO
+{
+    public class UpdateUserProfile
+    {
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+    }
+}

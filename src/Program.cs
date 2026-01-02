@@ -7,13 +7,9 @@ using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SmartUniversity.Api;
+using SmartUniversity.Shared.Middleware;
 using SmartUniversity.Modules.Identity;
-using SmartUniversity.Modules.Identity.Application.Interfaces;
-using SmartUniversity.Modules.Identity.Application.Services;
-using SmartUniversity.Modules.Identity.Domain.Repository;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
-using SmartUniversity.Modules.Identity.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +32,6 @@ builder
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -93,10 +88,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+app.UseWelcomePage();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
