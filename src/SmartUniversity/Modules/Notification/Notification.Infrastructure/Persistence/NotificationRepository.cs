@@ -52,5 +52,27 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
                 TotalCount = totalCount,
             };
         }
+
+        public async Task<Notifications> MarkAsReadAsync(Guid notificationId)
+        {
+            Notifications notification = _notificationDbContext.Notifications.First(n =>
+                n.Id == notificationId
+            );
+            notification.MarkAsRead();
+            _notificationDbContext.Notifications.Update(notification);
+            await _notificationDbContext.SaveChangesAsync();
+            return notification;
+        }
+
+        public async Task<Notifications> GetNotificationByIdAsync(Guid notificationId)
+        {
+            Notifications notification = _notificationDbContext.Notifications.First(n =>
+                n.Id == notificationId
+            );
+            notification.MarkAsRead();
+            _notificationDbContext.Notifications.Update(notification);
+            await _notificationDbContext.SaveChangesAsync();
+            return notification;
+        }
     }
 }

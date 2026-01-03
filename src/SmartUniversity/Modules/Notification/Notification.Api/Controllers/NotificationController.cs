@@ -50,5 +50,30 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
                 }
             );
         }
+
+        /// <summary>
+        /// Mark as read notification by id. 
+        /// failure
+        /// </summary>
+        [Authorize]
+        [HttpPatch("{id}/mark-as-read")]
+        [ProducesResponseType(typeof(NotificationResponse), 200)]
+        public async Task<IActionResult> MarkAsReadAsync([FromRoute] string id)
+        {
+            var notification = await _notificationServices.MarkAsReadAsync(id);
+            return Ok(new { notification = notification });
+        }
+
+        /// <summary>
+        /// get notification by id. 
+        /// </summary>
+        [Authorize]
+        [HttpGet(":id")]
+        [ProducesResponseType(typeof(NotificationResponse), 200)]
+        public async Task<IActionResult> GetNotificationByIdAsync([FromQuery] string id)
+        {
+            var notification = await _notificationServices.GetNotificationByIdAsync(id);
+            return Ok(new { notification = notification });
+        }
     }
 }

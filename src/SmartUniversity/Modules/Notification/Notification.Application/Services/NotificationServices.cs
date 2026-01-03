@@ -49,7 +49,7 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             GetNotificationRequest request
         )
         {
-            if (userId == null)
+            if (userId.IsWhiteSpace() || userId == null)
             {
                 throw new GetNotificationException("UserId cannot be null.");
             }
@@ -104,6 +104,62 @@ namespace SmartUniversity.Modules.Notification.Application.Services
                     "An unexpected error occurred while retrieving notifications.",
                     ex
                 );
+            }
+        }
+
+        public async Task<NotificationResponse> MarkAsReadAsync(string notificationId)
+        {
+            if (notificationId == null)
+            {
+                throw new GetNotificationException("UserId cannot be null.");
+            }
+
+            Guid Id = Guid.Parse(notificationId);
+            try
+            {
+             Notifications notification =  await _notificationRepository.MarkAsReadAsync(Id);
+             NotificationResponse res = new NotificationResponse{
+               Id = notification.Id,
+               Title = notification.Title,
+               Message = notification.Message,
+               IsRead = notification.IsRead,
+               CreatedAt = notification.CreatedAt,
+               UserId = notification.UserId,
+               Type = notification.Type,
+             };
+              return res;
+            }
+            catch (Exception ex)
+            {
+                throw new GetNotificationException("Error marking as read");
+            }
+        }
+
+        public async Task<NotificationResponse> GetNotificationByIdAsync(string notificationId)
+        {
+            if (notificationId == null)
+            {
+                throw new GetNotificationException("UserId cannot be null.");
+            }
+
+            Guid Id = Guid.Parse(notificationId);
+            try
+            {
+             Notifications notification =  await _notificationRepository.GetNotificationByIdAsync(Id);
+             NotificationResponse res = new NotificationResponse{
+               Id = notification.Id,
+               Title = notification.Title,
+               Message = notification.Message,
+               IsRead = notification.IsRead,
+               CreatedAt = notification.CreatedAt,
+               UserId = notification.UserId,
+               Type = notification.Type,
+             };
+              return res;
+            }
+            catch (Exception ex)
+            {
+                throw new GetNotificationException("Error marking as read");
             }
         }
     }

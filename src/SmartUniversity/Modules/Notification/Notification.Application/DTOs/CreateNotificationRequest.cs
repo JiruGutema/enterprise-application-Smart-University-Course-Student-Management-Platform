@@ -9,6 +9,6 @@ namespace SmartUniversity.Modules.Notification.Application.DTO
         public string Title { get; set; }
         public string Message { get; set; }
         public NotificationType Type { get; set; }
-        public bool IsRead = false;
+        public bool IsRead {get; set;}
     }
 }
