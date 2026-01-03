@@ -9,12 +9,25 @@ using SmartUniversity.Shared.Kernel.Interface;
 
 public static class NotificationModule
 {
-    public static IServiceCollection AddNotificationModule(this IServiceCollection services)
+    public static IServiceCollection AddNotificationModule(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.AddScoped<INotificationServices, NotificationServices>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<EmailServices>();
-        services.AddScoped<IEmailSender, EmailSender>();
+
+        services.AddScoped<IEmailSender>(sp =>
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            var password =
+                config["SMTP:Password"] ?? throw new ArgumentNullException("SMTP:Password");
+            var user = config["SMTP:User"] ?? throw new ArgumentNullException("SMTP:User");
+            var host = config["SMTP:Host"] ?? throw new ArgumentNullException("SMTP:Host");
+            var port = config["SMTP:Port"] ?? throw new ArgumentNullException("SMTP:Port");
+            return new EmailSender(host, port, user, password);
+        });
         services.AddScoped<UserRegisteredEventHandler>();
 
         return services;
