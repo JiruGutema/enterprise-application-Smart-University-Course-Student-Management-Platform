@@ -5,7 +5,8 @@ using SmartUniversity.Modules.Identity.Application.Security;
 using SmartUniversity.Modules.Identity.Domain.Entities;
 using SmartUniversity.Modules.Identity.Domain.Enums;
 using SmartUniversity.Modules.Identity.Domain.Repository;
-using SmartUniversity.Modules.Identity.Infrastructure.Exceptions;
+using SmartUniversity.Modules.Notification.Domain.Events;
+using SmartUniversity.Shared.Kernel.Interface;
 
 namespace SmartUniversity.Modules.Identity.Application.Services
 {
@@ -14,16 +15,19 @@ namespace SmartUniversity.Modules.Identity.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtService _jwtService;
+        private readonly IEventBus _eventBus;
 
         public UserServices(
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
-            IJwtService jwtService
+            IJwtService jwtService,
+            IEventBus eventBus
         )
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
+            _eventBus = eventBus;
         }
 
         public async Task<UserResponse> RegisterAsync(CreateUserRequest request)
@@ -50,7 +54,8 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             {
                 throw new UserAlreadyExistsException("Error creating user", ex);
             }
-
+            var userRegisteredEvent = new UserRegisteredEvent(user.Id, user.Email, user.FullName);
+            await _eventBus.PublishAsync(userRegisteredEvent);
             return new UserResponse
             {
                 Id = user.Id,
@@ -287,8 +292,7 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             }
             catch (Exception e)
             {
-
-              Console.WriteLine("\n here \n");
+                Console.WriteLine("\n here \n");
                 throw new ActiveUserException("Error activating user account", e);
             }
 
@@ -398,7 +402,7 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             {
                 res = await _userRepository.UpdateUserRoleAsync(role, id);
             }
-            catch (InfrastructureException ex)
+            catch (AppException ex)
             {
                 throw new AppException("Invalid user role", ex);
             }

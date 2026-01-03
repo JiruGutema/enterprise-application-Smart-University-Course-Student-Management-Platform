@@ -7,9 +7,12 @@ using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SmartUniversity.Shared.Middleware;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
+using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
+using SmartUniversity.Shared.Kernel.Interface;
+using SmartUniversity.Shared.Kernel.Service;
+using SmartUniversity.Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,11 +77,21 @@ builder.Services.AddAuthorization();
 
 // Database
 builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<NotificationDbContext>(options =>
+    options.UseNpgsql(connectionString)
+);
+
+// Shared event bus
+builder.Services.AddSingleton<IEventBus, InMemoryEventBus>();
 
 // Modules
 builder.Services.AddIdentityModule(builder.Configuration);
+builder.Services.AddNotificationModule();
 
 var app = builder.Build();
+
+// register event subscriptions
+app.SubscribeNotificationEvents();
 
 // Middleware pipeline
 if (app.Environment.IsDevelopment())
@@ -88,7 +101,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-app.UseWelcomePage();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
