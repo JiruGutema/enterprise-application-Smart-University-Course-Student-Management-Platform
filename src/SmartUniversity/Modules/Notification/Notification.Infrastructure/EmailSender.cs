@@ -6,10 +6,18 @@ namespace SmartUniversity.Modules.Notification.Infrastructure
 {
     public class EmailSender : IEmailSender
     {
-        private readonly string _smtpHost = "smtp.example.com";
-        private readonly int _smtpPort = 587;
-        private readonly string _smtpUser = "your-email@example.com";
-        private readonly string _smtpPass = "your-password";
+        private readonly string _smtpHost;
+        private readonly int _smtpPort;
+        private readonly string _smtpUser;
+        private readonly string _smtpPass;
+
+        public EmailSender(string host, string port, string user, string password)
+        {
+            _smtpHost = host;
+            _smtpPort = int.Parse(port);
+            _smtpUser = user;
+            _smtpPass = password;
+        }
 
         public async Task SendAsync(
             string to,
@@ -27,7 +35,7 @@ namespace SmartUniversity.Modules.Notification.Infrastructure
             var mailMessage = new MailMessage(_smtpUser, to, subject, body) { IsBodyHtml = true };
             Console.WriteLine("\n email is sent with this information, ", mailMessage);
 
-            // await client.SendMailAsync(mailMessage, cancellationToken);
+            await client.SendMailAsync(mailMessage, cancellationToken);
         }
     }
 }

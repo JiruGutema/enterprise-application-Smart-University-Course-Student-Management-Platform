@@ -86,7 +86,7 @@ builder.Services.AddSingleton<IEventBus, InMemoryEventBus>();
 
 // Modules
 builder.Services.AddIdentityModule(builder.Configuration);
-builder.Services.AddNotificationModule();
+builder.Services.AddNotificationModule(builder.Configuration);
 
 var app = builder.Build();
 
