@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartUniversity.Modules.Notification.Application.DTO;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Entities;
@@ -107,27 +106,34 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             }
         }
 
-        public async Task<NotificationResponse> MarkAsReadAsync(string notificationId)
+        public async Task<NotificationResponse> MarkAsReadAsync(string nId, string uId)
         {
-            if (notificationId == null)
+            if (nId == null)
             {
                 throw new GetNotificationException("UserId cannot be null.");
             }
 
-            Guid Id = Guid.Parse(notificationId);
+            if (uId == null)
+            {
+                throw new GetNotificationException("UserId cannot be null.");
+            }
+
+            Guid Id = Guid.Parse(nId);
+            Guid userId = Guid.Parse(uId);
             try
             {
-             Notifications notification =  await _notificationRepository.MarkAsReadAsync(Id);
-             NotificationResponse res = new NotificationResponse{
-               Id = notification.Id,
-               Title = notification.Title,
-               Message = notification.Message,
-               IsRead = notification.IsRead,
-               CreatedAt = notification.CreatedAt,
-               UserId = notification.UserId,
-               Type = notification.Type,
-             };
-              return res;
+                Notifications notification = await _notificationRepository.MarkAsReadAsync(Id, userId);
+                NotificationResponse res = new NotificationResponse
+                {
+                    Id = notification.Id,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    IsRead = notification.IsRead,
+                    CreatedAt = notification.CreatedAt,
+                    UserId = notification.UserId,
+                    Type = notification.Type,
+                };
+                return res;
             }
             catch (Exception ex)
             {
@@ -135,27 +141,38 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             }
         }
 
-        public async Task<NotificationResponse> GetNotificationByIdAsync(string notificationId)
+        public async Task<NotificationResponse> GetNotificationByIdAsync(string nId, string uId)
         {
-            if (notificationId == null)
+            if (nId == null)
             {
-                throw new GetNotificationException("UserId cannot be null.");
+                throw new GetNotificationException("Notification id is required.");
             }
 
-            Guid Id = Guid.Parse(notificationId);
+            if (uId == null)
+            {
+                throw new UnauthorizedAccessException("Unauthorized Access.");
+            }
+
+            Guid notificationId = Guid.Parse(nId);
+
+            Guid userId = Guid.Parse(uId);
             try
             {
-             Notifications notification =  await _notificationRepository.GetNotificationByIdAsync(Id);
-             NotificationResponse res = new NotificationResponse{
-               Id = notification.Id,
-               Title = notification.Title,
-               Message = notification.Message,
-               IsRead = notification.IsRead,
-               CreatedAt = notification.CreatedAt,
-               UserId = notification.UserId,
-               Type = notification.Type,
-             };
-              return res;
+                Notifications notification = await _notificationRepository.GetNotificationByIdAsync(
+                    notificationId,
+                    userId
+                );
+                NotificationResponse res = new NotificationResponse
+                {
+                    Id = notification.Id,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    IsRead = notification.IsRead,
+                    CreatedAt = notification.CreatedAt,
+                    UserId = notification.UserId,
+                    Type = notification.Type,
+                };
+                return res;
             }
             catch (Exception ex)
             {

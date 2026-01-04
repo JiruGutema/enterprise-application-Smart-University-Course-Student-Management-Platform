@@ -53,22 +53,34 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
             };
         }
 
-        public async Task<Notifications> MarkAsReadAsync(Guid notificationId)
+        public async Task<Notifications> MarkAsReadAsync(Guid notificationId, Guid userId)
         {
             Notifications notification = _notificationDbContext.Notifications.First(n =>
                 n.Id == notificationId
             );
+
+            if (userId != notification.UserId)
+            {
+                throw new NotificationNotFoundException("Notification not found for this user.");
+            }
+
             notification.MarkAsRead();
             _notificationDbContext.Notifications.Update(notification);
             await _notificationDbContext.SaveChangesAsync();
             return notification;
         }
 
-        public async Task<Notifications> GetNotificationByIdAsync(Guid notificationId)
+        public async Task<Notifications> GetNotificationByIdAsync(Guid notificationId, Guid userId)
         {
             Notifications notification = _notificationDbContext.Notifications.First(n =>
                 n.Id == notificationId
             );
+
+            if (userId != notification.UserId)
+            {
+                throw new NotificationNotFoundException("Notification not found for this user.");
+            }
+
             notification.MarkAsRead();
             _notificationDbContext.Notifications.Update(notification);
             await _notificationDbContext.SaveChangesAsync();

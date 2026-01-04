@@ -10,8 +10,8 @@ namespace SmartUniversity.Modules.Notification.Application.Interfaces
             string? userId,
             GetNotificationRequest request
         );
-        Task<NotificationResponse> MarkAsReadAsync(string notificationId);
+        Task<NotificationResponse> MarkAsReadAsync(string notificationId, string? userId);
 
-        Task<NotificationResponse> GetNotificationByIdAsync(string notificationId);
+        Task<NotificationResponse> GetNotificationByIdAsync(string notificationId, string? userId);
     }
 }

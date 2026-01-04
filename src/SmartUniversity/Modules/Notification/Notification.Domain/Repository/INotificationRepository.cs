@@ -13,8 +13,8 @@ namespace SmartUniversity.Modules.Notification.Domain.Repository
             int pageSize
         );
 
-        Task<Notifications> MarkAsReadAsync(Guid id);
+        Task<Notifications> MarkAsReadAsync(Guid id, Guid userId);
 
-        Task<Notifications> GetNotificationByIdAsync(Guid id);
+        Task<Notifications> GetNotificationByIdAsync(Guid id, Guid userId); 
     }
 }

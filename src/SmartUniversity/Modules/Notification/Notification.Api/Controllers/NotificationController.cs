@@ -35,23 +35,6 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         }
 
         /// <summary>
-        /// Checks if notification endpoint is working
-        /// </summary>
-        [Authorize]
-        [HttpPost]
-        [ProducesResponseType(typeof(string), 200)]
-        public async Task<IActionResult> CreateNotificationAsync()
-        {
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(
-                new
-                {
-                    Notification = new { notifications = "Created Notification", userId = userId },
-                }
-            );
-        }
-
-        /// <summary>
         /// Mark as read notification by id. 
         /// failure
         /// </summary>
@@ -60,7 +43,8 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         [ProducesResponseType(typeof(NotificationResponse), 200)]
         public async Task<IActionResult> MarkAsReadAsync([FromRoute] string id)
         {
-            var notification = await _notificationServices.MarkAsReadAsync(id);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var notification = await _notificationServices.MarkAsReadAsync(id, userId);
             return Ok(new { notification = notification });
         }
 
@@ -72,7 +56,8 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         [ProducesResponseType(typeof(NotificationResponse), 200)]
         public async Task<IActionResult> GetNotificationByIdAsync([FromQuery] string id)
         {
-            var notification = await _notificationServices.GetNotificationByIdAsync(id);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var notification = await _notificationServices.GetNotificationByIdAsync(id, userId);
             return Ok(new { notification = notification });
         }
     }
