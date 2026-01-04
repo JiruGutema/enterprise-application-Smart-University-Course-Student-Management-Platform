@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SmartUniversity.Modules.Enrollment.Application.Commands;
 
-
 namespace SmartUniversity.Modules.Enrollment.Api;
 
 [ApiController]
