@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
 
-namespace SmartUniversity.Modules.Courses.Courses.Domain.Repository;
-
+namespace Courses.Domain.Repository;
+using Courses.Domain.Entities;
 public interface ICourseRepository
 {
     Task AddAsync(Course course);
