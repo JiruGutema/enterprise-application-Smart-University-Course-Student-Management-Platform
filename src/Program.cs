@@ -112,7 +112,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-app.UseWelcomePage();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
