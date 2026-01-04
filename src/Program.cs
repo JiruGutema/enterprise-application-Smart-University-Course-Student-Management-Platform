@@ -14,6 +14,16 @@ using SmartUniversity.Shared.Kernel.Interface;
 using SmartUniversity.Shared.Kernel.Service;
 using SmartUniversity.Shared.Middleware;
 
+using SmartUniversity.Modules.Enrollment.Api;
+using SmartUniversity.Modules.Enrollment.Application;
+using SmartUniversity.Modules.Enrollment.Application.Commands;
+using SmartUniversity.Modules.Enrollment.Domain.Repositories;
+using SmartUniversity.Modules.Enrollment.Infrastructure.Persistence;
+using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
+using SmartUniversity.Modules.Enrollment.Infrastructure.Outbox;
+using MediatR;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
@@ -83,6 +93,20 @@ builder.Services.AddDbContext<NotificationDbContext>(options =>
 
 // Shared event bus
 builder.Services.AddSingleton<IEventBus, InMemoryEventBus>();
+
+
+// Enrollment DbContext
+builder.Services.AddDbContext<EnrollmentDbContext>(options =>
+{
+    options.UseNpgsql(connectionString)
+           .AddInterceptors(new OutboxInterceptor());
+});
+
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddMediatR(typeof(EnrollStudentCommand).Assembly);
+
+
 
 // Modules
 builder.Services.AddIdentityModule(builder.Configuration);
