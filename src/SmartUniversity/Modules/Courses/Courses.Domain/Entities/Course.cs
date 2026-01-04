@@ -1,3 +1,4 @@
+namespace Courses.Domain.Entities;
 public class Course
 {
     public Guid Id { get; private set; }
