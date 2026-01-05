@@ -18,8 +18,8 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
+using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
 using SmartUniversity.Shared.Kernel.Interface;
-using SmartUniversity.Shared.Kernel.Service;
 using SmartUniversity.Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,8 +89,16 @@ builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
 
-// Shared event bus
-builder.Services.AddSingleton<IEventBus, InMemoryEventBus>();
+// RabbitMQ Configuration
+builder.Services.AddSingleton(
+    new RabbitMqConnection(
+        host: builder.Configuration["RabbitMQ:Host"]!,
+        username: builder.Configuration["RabbitMQ:Username"]!,
+        password: builder.Configuration["RabbitMQ:Password"]!
+    )
+);
+
+builder.Services.AddSingleton<IEventBus, RabbitMqEventBus>();
 
 // Enrollment DbContext
 builder.Services.AddDbContext<EnrollmentDbContext>(options =>
@@ -104,6 +112,7 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
+
 // builder.Services.AddMediatR(typeof(EnrollStudentCommand).Assembly);
 
 // Modules
