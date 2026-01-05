@@ -21,6 +21,10 @@ using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Interface;
 using SmartUniversity.Shared.Kernel.Service;
 using SmartUniversity.Shared.Middleware;
+using SmartUniversity.Modules.Content.Api;
+using SmartUniversity.Modules.Content.Application.Services;
+using SmartUniversity.Modules.Content.Domain.Repositories;
+using SmartUniversity.Modules.Content.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +92,11 @@ builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connec
 builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
+builder.Services.AddDbContext<ContentDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<MaterialService>();
 
 // Shared event bus
 builder.Services.AddSingleton<IEventBus, InMemoryEventBus>();
@@ -127,5 +136,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapContentEndpoints();
 
 app.Run();
