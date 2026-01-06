@@ -184,12 +184,12 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// </summary>
         [HttpGet("password-reset-request")]
         [ProducesResponseType(typeof(string), 200)]
-        public async Task<IActionResult> ChangePasswordRequestAsync([FromRoute] string email)
+        public async Task<IActionResult> ChangePasswordRequestAsync([FromQuery] string email)
         {
             bool sent = await _userServices.ResetPasswordRequestAsync(email);
             if (sent)
             {
-                return Ok(new { data = "We have sent you reset link to the email" });
+                return Ok(new { message = "We have sent you reset link to the email" });
             }
 
             return StatusCode(500, new { error = "Failed to send email." });
