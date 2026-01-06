@@ -12,5 +12,9 @@ namespace SmartUniversity.Modules.Enrollment.Domain.Repositories
 
         Task<bool> ExistsAsync(Guid studentId, Guid courseId, CancellationToken ct);
 
+        Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> GetByStudentAsync(Guid studentId, string? status, int page, int pageSize, CancellationToken ct);
+Task<int> CountByStudentAsync(Guid studentId, string? status, CancellationToken ct);
+
+
     }
 }
