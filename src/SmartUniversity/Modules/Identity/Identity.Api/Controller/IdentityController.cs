@@ -214,5 +214,17 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
             _cookieServices.SetLoginCookies(Response, accessToken, refreshToken);
             return Ok(new { data = user });
         }
+
+        /// <summary>
+        /// Admin Deletes users by id
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("user/delete{id}")]
+        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
+        public async Task<IActionResult> ChangePasswordAsync([FromRoute] string userId)
+        {
+            UserResponse user = await _userServices.DeleteUserAsync(userId);
+            return Ok(new { data = user });
+        }
     }
 }

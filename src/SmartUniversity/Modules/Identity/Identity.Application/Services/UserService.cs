@@ -557,5 +557,36 @@ namespace SmartUniversity.Modules.Identity.Application.Services
 
             return (userResponse, refreshToken, accessToken);
         }
+
+        public async Task<UserResponse> DeleteUserAsync(string userId)
+        {
+            Guid userGuid = Guid.Parse(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userGuid);
+            if (user is null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            user = await _userRepository.DeleteUserAsync(userGuid);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            var userDeletedEvent = new UserDeletedEvent(user.Id, user.Email, user.FullName);
+            await _eventBus.PublishAsync(userDeletedEvent);
+
+            UserResponse userResponse = new UserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                Role = user.Role.ToString(),
+                IsActive = user.IsActive,
+            };
+
+            return userResponse;
+        }
     }
 }

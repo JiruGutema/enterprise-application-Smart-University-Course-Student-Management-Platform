@@ -23,7 +23,10 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
         Task<bool> ResetPasswordRequestAsync(string email);
 
         Task<(UserResponse user, string refreshToken, string accessToken)> ResetPasswordAsync(
-            ResetPasswordRequest request, string? userId
+            ResetPasswordRequest request,
+            string? userId
         );
+
+        Task<UserResponse> DeleteUserAsync(string userId);
     }
 }
