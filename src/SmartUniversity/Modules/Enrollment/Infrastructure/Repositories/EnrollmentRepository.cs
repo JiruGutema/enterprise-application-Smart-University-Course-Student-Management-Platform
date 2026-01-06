@@ -66,5 +66,47 @@ public async Task<int> CountByStudentAsync(Guid studentId, string? status, Cance
     return await query.CountAsync(ct);
 }
 
+public async Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> GetByCourseAsync(
+    Guid courseId,
+    string? status,
+    int page,
+    int pageSize,
+    CancellationToken ct)
+{
+    var query = _context.Enrollments
+        .Where(e => e.CourseId == courseId);
+
+    if (!string.IsNullOrEmpty(status) &&
+        Enum.TryParse<EnrollmentStatus>(status, true, out var statusEnum))
+    {
+        query = query.Where(e => e.Status == statusEnum);
+    }
+
+    return await query
+        .OrderByDescending(e => e.EnrolledAt)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync(ct);
+}
+
+public async Task<int> CountByCourseAsync(
+    Guid courseId,
+    string? status,
+    CancellationToken ct)
+{
+    var query = _context.Enrollments
+        .Where(e => e.CourseId == courseId);
+
+    if (!string.IsNullOrEmpty(status) &&
+        Enum.TryParse<EnrollmentStatus>(status, true, out var statusEnum))
+    {
+        query = query.Where(e => e.Status == statusEnum);
+    }
+
+    return await query.CountAsync(ct);
+}
+
+
+
     }
 }

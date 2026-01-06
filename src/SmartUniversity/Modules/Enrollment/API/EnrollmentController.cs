@@ -71,6 +71,8 @@ public async Task<IActionResult> GetMyEnrollments([FromQuery] GetMyEnrollmentsRe
 }
 
 // PATCH /api/enrollments/{enrollmentId}/drop
+
+
 [HttpPatch("{id}/drop")]
 public async Task<IActionResult> Drop(Guid id)
 {
@@ -78,7 +80,26 @@ public async Task<IActionResult> Drop(Guid id)
     return NoContent();
 }
 
+// GET /api/enrollments/courses/{courseId}/students 
+//  will add // [Authorize(Roles = "Instructor,Admin")]
 
+[HttpGet("courses/{courseId}/students")]
+public async Task<IActionResult> GetStudentsByCourse(
+    Guid courseId,
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 50)
+{
+    var result = await _mediator.Send(new GetStudentsByCourseQuery
+    {
+        CourseId = courseId,
+        Status = status,
+        Page = page,
+        PageSize = pageSize
+    });
+
+    return Ok(result);
+}
 
 
 
