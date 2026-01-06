@@ -136,6 +136,17 @@ public async Task<IActionResult> ChangeStatus(
 }
 
 
+  // GET /api/enrollments/internal/validate-prerequisites
+    [HttpGet("internal/validate-prerequisites")]
+    public IActionResult ValidatePrerequisites([FromQuery] Guid studentId, [FromQuery] Guid courseId)
+    {
+        // TEMP: mock logic for now
+        var response = new PrerequisiteValidationResponse
+        {
+            IsEligible = true,
+            MissingPrerequisites = new List<string>() // empty list = all prerequisites met
+        };
 
-
+        return Ok(response);
+    }
 }
