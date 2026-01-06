@@ -1,7 +1,7 @@
+using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Modules.Notification.Application.Events;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Application.Services;
-using SmartUniversity.Modules.Notification.Domain.Events;
 using SmartUniversity.Modules.Notification.Domain.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Repository;
 using SmartUniversity.Modules.Notification.Infrastructure;

@@ -1,5 +1,5 @@
 
-namespace SmartUniversity.Modules.Notification.Domain.Events
+namespace SmartUniversity.Modules.Identity.Domain.Events
 {
     public class UserRegisteredEvent
     {

@@ -1,4 +1,4 @@
-using SmartUniversity.Modules.Notification.Domain.Events;
+using SmartUniversity.Modules.Identity.Domain.Events;
 
 namespace SmartUniversity.Modules.Notification.Application.Interfaces
 {

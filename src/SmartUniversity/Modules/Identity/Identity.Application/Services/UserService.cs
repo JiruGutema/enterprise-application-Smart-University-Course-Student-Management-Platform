@@ -5,7 +5,7 @@ using SmartUniversity.Modules.Identity.Application.Security;
 using SmartUniversity.Modules.Identity.Domain.Entities;
 using SmartUniversity.Modules.Identity.Domain.Enums;
 using SmartUniversity.Modules.Identity.Domain.Repository;
-using SmartUniversity.Modules.Notification.Domain.Events;
+using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Shared.Kernel.Interface;
 
 namespace SmartUniversity.Modules.Identity.Application.Services

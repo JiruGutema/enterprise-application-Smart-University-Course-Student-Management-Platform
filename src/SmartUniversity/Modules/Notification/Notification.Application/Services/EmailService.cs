@@ -1,5 +1,5 @@
 using SmartUniversity.Modules.Notification.Application.Interfaces;
-using SmartUniversity.Modules.Notification.Domain.Events;
+using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Modules.Notification.Domain.Interfaces;
 
 namespace SmartUniversity.Modules.Notification.Application.Services
