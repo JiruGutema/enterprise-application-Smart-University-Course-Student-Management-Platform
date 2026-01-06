@@ -222,5 +222,30 @@ namespace SmartUniversity.Modules.Notification.Application.Services
                 PageSize = request.PageSize,
             };
         }
+
+        public async Task DeleteNotificationAsync(string nId, string uId)
+        {
+            if (nId == null)
+            {
+                throw new GetNotificationException("Notification id is required.");
+            }
+
+            if (uId == null)
+            {
+                throw new UnauthorizedAccessException("Unauthorized Access.");
+            }
+
+            Guid notificationId = Guid.Parse(nId);
+
+            Guid userId = Guid.Parse(uId);
+            try
+            {
+                await _notificationRepository.DeleteNotificationAsync(notificationId, userId);
+            }
+            catch (Exception ex)
+            {
+                throw new GetNotificationException("Error deleting notification");
+            }
+        }
     }
 }

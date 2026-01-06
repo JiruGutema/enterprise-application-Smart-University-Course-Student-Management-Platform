@@ -23,5 +23,7 @@ namespace SmartUniversity.Modules.Notification.Domain.Repository
             int pageSize,
             Guid userId
         );
+
+        Task DeleteNotificationAsync(Guid notificationId, Guid userId);
     }
 }

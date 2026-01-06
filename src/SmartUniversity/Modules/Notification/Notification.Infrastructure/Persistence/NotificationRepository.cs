@@ -87,7 +87,12 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
             return notification;
         }
 
-        public async Task<PagedResult<Notifications>> SearchNotificationsAsync(string query, int page, int pageSize, Guid userId)
+        public async Task<PagedResult<Notifications>> SearchNotificationsAsync(
+            string query,
+            int page,
+            int pageSize,
+            Guid userId
+        )
         {
             var baseQuery = _notificationDbContext.Notifications.AsQueryable();
 
@@ -109,5 +114,23 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
             return new PagedResult<Notifications> { Items = users, TotalCount = totalCount };
         }
 
+        public async Task DeleteNotificationAsync(Guid notificationId, Guid userId)
+        {
+            Notifications notification = await _notificationDbContext.Notifications.FirstAsync(n =>
+                n.Id == notificationId
+            );
+            if (notification == null)
+            {
+                throw new NotificationNotFoundException("Notification not found.");
+            }
+
+            if (userId != notification.UserId)
+            {
+                throw new NotificationNotFoundException("Notification not found for this user.");
+            }
+
+            _notificationDbContext.Notifications.Remove(notification);
+            await _notificationDbContext.SaveChangesAsync();
+        }
     }
 }

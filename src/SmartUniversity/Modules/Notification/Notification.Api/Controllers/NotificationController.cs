@@ -62,9 +62,10 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         }
 
         /// <summary>
-        /// User searches for a notification with a title or message content.         /// </summary>
+        /// User searches for a notification with a title or message content.
+        /// </summary>
         [Authorize]
-        [HttpGet("notifications/search")]
+        [HttpGet("search")]
         [ProducesResponseType(typeof(SearchNotificationResponse), 200)]
         public async Task<IActionResult> SearchUserAsync(
             [FromQuery] SearchNotificationRequest request
@@ -77,6 +78,20 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
             );
 
             return Ok(new { data = data });
+        }
+
+        /// <summary>
+        /// User searches for a notification with a title or message content.
+        /// </summary>
+        [Authorize]
+        [HttpDelete(":id")]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> DeleteNotificationAsync([FromQuery] string id)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _notificationServices.DeleteNotificationAsync(id, userId!);
+
+            return Ok();
         }
     }
 }

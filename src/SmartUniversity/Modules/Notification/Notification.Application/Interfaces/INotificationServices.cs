@@ -14,6 +14,11 @@ namespace SmartUniversity.Modules.Notification.Application.Interfaces
 
         Task<NotificationResponse> GetNotificationByIdAsync(string notificationId, string? userId);
 
-        Task<SearchNotificationResponse> SearchNotificationsAsync(SearchNotificationRequest request, string userId);
+        Task<SearchNotificationResponse> SearchNotificationsAsync(
+            SearchNotificationRequest request,
+            string userId
+        );
+        Task DeleteNotificationAsync(string notificationId, string? userId);
+
     }
 }
