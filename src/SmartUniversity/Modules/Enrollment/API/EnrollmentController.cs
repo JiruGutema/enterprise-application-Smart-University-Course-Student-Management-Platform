@@ -1,12 +1,13 @@
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SmartUniversity.Modules.Enrollment.Application.Commands;
+using SmartUniversity.Modules.Enrollment.Api.DTOs;
+using MediatR;
 
 namespace SmartUniversity.Modules.Enrollment.Api;
 
 [ApiController]
 [Route("api/enrollments")]
-// [Authorize]
+[Tags("Enrollment Context")]
 public class EnrollmentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -17,22 +18,35 @@ public class EnrollmentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Enroll(EnrollStudentCommand command)
+    public async Task<IActionResult> Enroll([FromBody] EnrollRequest request)
     {
-        var id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetById), new { id }, id);
-    }
+   
+        var studentId = request.StudentId;
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Drop(Guid id)
-    {
-        await _mediator.Send(new DropEnrollmentCommand(id));
-        return NoContent();
+        var enrollmentId = await _mediator.Send(
+            new EnrollStudentCommand(studentId, request.CourseId)
+        );
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = enrollmentId },
+            new EnrollmentResponse(
+                EnrollmentId: enrollmentId,
+                CourseId: request.CourseId,
+                StudentId: studentId,
+                EnrollmentDate: DateTime.UtcNow,
+                Status: Domain.Enums.EnrollmentStatus.Enrolled,
+                ProgressPercentage: 0
+            )
+        );
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById(Guid id)
     {
+        // Placeholder
         return Ok(new { EnrollmentId = id });
     }
+
+  
 }
