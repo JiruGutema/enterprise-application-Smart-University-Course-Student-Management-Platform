@@ -182,8 +182,8 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// <summary>
         /// reset password endpoint. this can also be used for forgot password
         /// </summary>
-        [HttpGet("auth/password-reset-request")]
-        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
+        [HttpGet("password-reset-request")]
+        [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> ChangePasswordRequestAsync([FromRoute] string email)
         {
             bool sent = await _userServices.ResetPasswordRequestAsync(email);
@@ -199,7 +199,7 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// verify change password. new password and resettoken should be sent
         /// via body
         /// </summary>
-        [HttpPost("auth/change-password")]
+        [HttpPost("password-reset/confirm")]
         [ProducesResponseType(typeof(UserResponseWrapper), 200)]
         public async Task<IActionResult> ChangePasswordAsync(
             [FromBody] ResetPasswordRequest request
