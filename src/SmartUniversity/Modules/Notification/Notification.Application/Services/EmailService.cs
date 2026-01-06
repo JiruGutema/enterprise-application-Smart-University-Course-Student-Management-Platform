@@ -48,7 +48,7 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             CancellationToken cancellationToken = default
         )
         {
-            string subject = "Welcome to Smart University!";
+            string subject = "Reset password request";
             string body =
                 $@"
                 <h1>Hello {evt.FullName}!</h1>
@@ -56,6 +56,23 @@ namespace SmartUniversity.Modules.Notification.Application.Services
                 <p>If you made this request, please click the link below to reset your password:</p>
                 <p><a href=""{evt.ResetLink}"">Reset Password</a></p>
                 <p>If you did not request a password reset, please ignore this email.</p>
+                <p>Thank you,<br/>SmartUniversity Team</p>";
+
+            await _emailSender.SendAsync(evt.Email, subject, body, cancellationToken);
+        }
+
+        public async Task SendPasswordChangedEmailAsync(
+            PasswordChangedEvent evt,
+            CancellationToken cancellationToken = default
+        )
+        {
+            string subject = "Your account password has been changed";
+            string body =
+                $@"
+                <h1>Hello {evt.FullName}!</h1>
+                <p>Your password has been changed.</p>
+                <p>If you made this change, you are not expected to do any thing:</p>
+                <p>If you did not change a password, please visit registrar</p>
                 <p>Thank you,<br/>SmartUniversity Team</p>";
 
             await _emailSender.SendAsync(evt.Email, subject, body, cancellationToken);
