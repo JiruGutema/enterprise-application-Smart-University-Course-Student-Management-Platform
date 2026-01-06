@@ -99,7 +99,12 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             return new PagedResult<User> { Items = users, TotalCount = totalCount };
         }
 
-        public async Task<User> UpdateUserAsync(string? email, string? passwordHash, Guid id)
+        public async Task<User> UpdateUserAsync(
+            string? email,
+            string? fullName,
+            string? passwordHash,
+            Guid id
+        )
         {
             if (email != null)
             {
@@ -107,12 +112,20 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
                     .Users.Where(u => u.Id == id)
                     .ExecuteUpdateAsync(u => u.SetProperty(x => x.Email, email));
             }
+
+            if (fullName != null)
+            {
+                await _context
+                    .Users.Where(u => u.Id == id)
+                    .ExecuteUpdateAsync(u => u.SetProperty(x => x.FullName, fullName));
+            }
             if (passwordHash != null)
             {
                 await _context
                     .Users.Where(user => user.Id == id)
                     .ExecuteUpdateAsync(u => u.SetProperty(x => x.PasswordHash, passwordHash));
             }
+
             await _context.SaveChangesAsync();
             User? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;

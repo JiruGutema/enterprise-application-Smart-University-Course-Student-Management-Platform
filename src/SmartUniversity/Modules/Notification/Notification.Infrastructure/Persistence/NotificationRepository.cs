@@ -86,5 +86,64 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
             await _notificationDbContext.SaveChangesAsync();
             return notification;
         }
+
+        public async Task<PagedResult<Notifications>> SearchNotificationsAsync(
+            string query,
+            int page,
+            int pageSize,
+            Guid userId
+        )
+        {
+            var baseQuery = _notificationDbContext.Notifications.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                baseQuery = baseQuery.Where(u =>
+                    u.Title.Contains(query) || u.Message.Contains(query) || u.UserId == userId
+                );
+            }
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var users = await baseQuery
+                .OrderBy(u => u.CreatedAt) // optional: consistent order
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Notifications> { Items = users, TotalCount = totalCount };
+        }
+
+        public async Task DeleteNotificationAsync(Guid notificationId, Guid userId)
+        {
+            Notifications notification = await _notificationDbContext.Notifications.FirstAsync(n =>
+                n.Id == notificationId
+            );
+            if (notification == null)
+            {
+                throw new NotificationNotFoundException("Notification not found.");
+            }
+
+            if (userId != notification.UserId)
+            {
+                throw new NotificationNotFoundException("Notification not found for this user.");
+            }
+
+            _notificationDbContext.Notifications.Remove(notification);
+            await _notificationDbContext.SaveChangesAsync();
+        }
+
+        public async Task MarkAllAsReadNotificationAsync(Guid userId)
+        {
+            var notifications = _notificationDbContext
+                .Notifications.Where(n => n.UserId == userId && !n.IsRead)
+                .ToList();
+
+            foreach (var notification in notifications)
+            {
+                notification.MarkAsRead();
+            }
+            await _notificationDbContext.SaveChangesAsync();
+        }
     }
 }

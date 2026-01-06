@@ -1,4 +1,5 @@
 using SmartUniversity.Modules.Notification.Application.DTO;
+using SmartUniversity.Modules.Notification.Application.Exceptions;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Entities;
 using SmartUniversity.Modules.Notification.Domain.Repository;
@@ -44,7 +45,7 @@ namespace SmartUniversity.Modules.Notification.Application.Services
         }
 
         public async Task<GetNotificationResponse> GetNotificationsByUserIdAsync(
-            string userId,
+            string? userId,
             GetNotificationRequest request
         )
         {
@@ -106,7 +107,7 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             }
         }
 
-        public async Task<NotificationResponse> MarkAsReadAsync(string nId, string uId)
+        public async Task<NotificationResponse> MarkAsReadAsync(string nId, string? uId)
         {
             if (nId == null)
             {
@@ -122,7 +123,10 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             Guid userId = Guid.Parse(uId);
             try
             {
-                Notifications notification = await _notificationRepository.MarkAsReadAsync(Id, userId);
+                Notifications notification = await _notificationRepository.MarkAsReadAsync(
+                    Id,
+                    userId
+                );
                 NotificationResponse res = new NotificationResponse
                 {
                     Id = notification.Id,
@@ -137,11 +141,11 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             }
             catch (Exception ex)
             {
-                throw new GetNotificationException("Error marking as read");
+                throw new GetNotificationException("Error marking as read", ex);
             }
         }
 
-        public async Task<NotificationResponse> GetNotificationByIdAsync(string nId, string uId)
+        public async Task<NotificationResponse> GetNotificationByIdAsync(string nId, string? uId)
         {
             if (nId == null)
             {
@@ -176,7 +180,89 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             }
             catch (Exception ex)
             {
-                throw new GetNotificationException("Error marking as read");
+                throw new GetNotificationException("Error marking as read", ex);
+            }
+        }
+
+        public async Task<SearchNotificationResponse> SearchNotificationsAsync(
+            SearchNotificationRequest request,
+            string userId
+        )
+        {
+            if (userId is null)
+            {
+                throw new AppException("UserId cannot be null.");
+            }
+            Guid uId = Guid.Parse(userId);
+
+            var result = await _notificationRepository.SearchNotificationsAsync(
+                request.Query,
+                request.Page,
+                request.PageSize,
+                uId
+            );
+
+            var notifcations = result
+                .Items.Select(u => new NotificationResponse
+                {
+                    Id = u.Id,
+                    Title = u.Title,
+                    Message = u.Message,
+                    UserId = u.UserId,
+                    IsRead = u.IsRead,
+                    CreatedAt = u.CreatedAt,
+                })
+                .ToList();
+
+            return new SearchNotificationResponse
+            {
+                Data = notifcations,
+                Total = result.TotalCount,
+                Page = request.Page,
+                PageSize = request.PageSize,
+            };
+        }
+
+        public async Task DeleteNotificationAsync(string nId, string? uId)
+        {
+            if (nId == null)
+            {
+                throw new GetNotificationException("Notification id is required.");
+            }
+
+            if (uId == null)
+            {
+                throw new UnauthorizedAccessException("Unauthorized Access.");
+            }
+
+            Guid notificationId = Guid.Parse(nId);
+
+            Guid userId = Guid.Parse(uId);
+            try
+            {
+                await _notificationRepository.DeleteNotificationAsync(notificationId, userId);
+            }
+            catch (Exception ex)
+            {
+                throw new GetNotificationException("Error deleting notification", ex);
+            }
+        }
+
+        public async Task MarkAllAsReadNotificationAsync(string? uId)
+        {
+            if (uId == null)
+            {
+                throw new UnauthorizedAccessException("Unauthorized Access.");
+            }
+
+            Guid userId = Guid.Parse(uId);
+            try
+            {
+                await _notificationRepository.MarkAllAsReadNotificationAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                throw new GetNotificationException("Error marking all as read notification", ex);
             }
         }
     }

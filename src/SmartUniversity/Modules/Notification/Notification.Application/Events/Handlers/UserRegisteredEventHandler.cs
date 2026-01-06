@@ -1,18 +1,17 @@
+using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
-using SmartUniversity.Modules.Notification.Application.Services;
 using SmartUniversity.Modules.Notification.Domain.Entities;
-using SmartUniversity.Modules.Notification.Domain.Events;
 
 namespace SmartUniversity.Modules.Notification.Application.Events
 {
     public class UserRegisteredEventHandler
     {
         private readonly ILogger<UserRegisteredEventHandler> _logger;
-        private readonly EmailServices _emailServices;
+        private readonly IEmailServices _emailServices;
         private readonly INotificationServices _notificationServices;
 
         public UserRegisteredEventHandler(
-            EmailServices emailServices,
+            IEmailServices emailServices,
             INotificationServices notificationServices,
             ILogger<UserRegisteredEventHandler> logger
         )

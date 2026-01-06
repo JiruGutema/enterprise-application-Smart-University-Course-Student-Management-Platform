@@ -14,7 +14,7 @@ namespace SmartUniversity.Modules.Identity.Domain.Repository
         Task<User?> GetUserByEmailAsync(string email);
         Task<PagedResult<User>> SearchUsersAsync(string query, int page, int pageSize);
         Task AddAsync(User user);
-        Task<User> UpdateUserAsync(string? email, string? passwordHash, Guid id);
+        Task<User> UpdateUserAsync(string? email,string? fullName, string? passwordHash, Guid id);
         Task<User> UpdateUserRoleAsync(Role Role,  Guid id);
 
     }

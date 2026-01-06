@@ -35,7 +35,7 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         }
 
         /// <summary>
-        /// Mark as read notification by id. 
+        /// Mark as read notification by id.
         /// failure
         /// </summary>
         [Authorize]
@@ -49,7 +49,7 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         }
 
         /// <summary>
-        /// get notification by id. 
+        /// get notification by id.
         /// </summary>
         [Authorize]
         [HttpGet(":id")]
@@ -59,6 +59,53 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var notification = await _notificationServices.GetNotificationByIdAsync(id, userId);
             return Ok(new { notification = notification });
+        }
+
+        /// <summary>
+        /// User searches for a notification with a title or message content.
+        /// </summary>
+        [Authorize]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(SearchNotificationResponse), 200)]
+        public async Task<IActionResult> SearchUserAsync(
+            [FromQuery] SearchNotificationRequest request
+        )
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            SearchNotificationResponse data = await _notificationServices.SearchNotificationsAsync(
+                request,
+                userId!
+            );
+
+            return Ok(new { data = data });
+        }
+
+        /// <summary>
+        /// User searches for a notification with a title or message content.
+        /// </summary>
+        [Authorize]
+        [HttpDelete(":id")]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> DeleteNotificationAsync([FromQuery] string id)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _notificationServices.DeleteNotificationAsync(id, userId!);
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// User marks all unread notification as read.
+        /// </summary>
+        [Authorize]
+        [HttpPatch("mark-all-as-read")]
+        [ProducesResponseType(typeof(void), 200)]
+        public async Task<IActionResult> MarkAllAsReadNotificationAsync()
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _notificationServices.MarkAllAsReadNotificationAsync(userId!);
+
+            return Ok();
         }
     }
 }

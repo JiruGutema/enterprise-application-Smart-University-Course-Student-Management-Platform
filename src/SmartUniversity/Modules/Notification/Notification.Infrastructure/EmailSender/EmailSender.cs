@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Mail;
-using SmartUniversity.Modules.Notification.Application.Interfaces;
+using SmartUniversity.Modules.Notification.Domain.Interfaces;
 
 namespace SmartUniversity.Modules.Notification.Infrastructure
 {

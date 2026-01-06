@@ -49,7 +49,7 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// Refreshes the access token and returns the refreshed access token
         /// via cookies.
         /// </summary>
-        [HttpPost("auth/refresh")]
+        [HttpGet("auth/refresh")]
         [ProducesResponseType(typeof(string), 200)]
         public async Task<IActionResult> Refresh()
         {
