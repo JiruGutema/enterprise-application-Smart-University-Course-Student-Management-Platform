@@ -124,5 +124,18 @@ public async Task<IActionResult> AdminSearchEnrollments(
 }
 
 
+// PATCH /api/enrollments/{enrollmentId}/status
+
+[HttpPatch("{id}/status")]
+public async Task<IActionResult> ChangeStatus(
+    Guid id,
+    [FromBody] ChangeEnrollmentStatusRequest request)
+{
+    await _mediator.Send(new ChangeEnrollmentStatusCommand(id, request.Status));
+    return NoContent();
+}
+
+
+
 
 }

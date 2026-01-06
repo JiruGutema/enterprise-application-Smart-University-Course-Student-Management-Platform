@@ -44,6 +44,7 @@ Task<int> AdminCountAsync(
     string? status,
     CancellationToken ct);
 
+Task SaveAsync(SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment enrollment, CancellationToken ct);
 
     }
 }

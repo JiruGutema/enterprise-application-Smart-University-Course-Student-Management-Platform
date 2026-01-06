@@ -158,6 +158,11 @@ public async Task<int> AdminCountAsync(
     return await query.CountAsync(ct);
 }
 
+public async Task SaveAsync(SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment enrollment, CancellationToken ct)
+{
+    _context.Enrollments.Update(enrollment);
+    await _context.SaveChangesAsync(ct);
+}
 
 
 
