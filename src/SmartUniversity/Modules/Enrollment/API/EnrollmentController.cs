@@ -43,11 +43,16 @@ public class EnrollmentController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(Guid id)
-    {
-        // Placeholder
-        return Ok(new { EnrollmentId = id });
-    }
+public async Task<IActionResult> GetById(Guid id)
+{
+    var enrollment = await _mediator.Send(new GetEnrollmentByIdQuery(id));
+
+    if (enrollment == null)
+        return NotFound(new { error = "Enrollment not found" });
+
+    return Ok(enrollment);
+}
+
 
    [HttpGet("my")]
 public async Task<IActionResult> GetMyEnrollments([FromQuery] GetMyEnrollmentsRequest request)
