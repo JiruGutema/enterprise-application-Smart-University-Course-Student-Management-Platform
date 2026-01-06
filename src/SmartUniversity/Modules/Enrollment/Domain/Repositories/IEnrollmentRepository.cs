@@ -30,6 +30,20 @@ Task<int> CountByStudentAsync(Guid studentId, string? status, CancellationToken 
             CancellationToken ct
         );
 
+Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> AdminSearchAsync(
+    Guid? studentId,
+    Guid? courseId,
+    string? status,
+    int page,
+    int pageSize,
+    CancellationToken ct);
+
+Task<int> AdminCountAsync(
+    Guid? studentId,
+    Guid? courseId,
+    string? status,
+    CancellationToken ct);
+
 
     }
 }

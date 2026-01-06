@@ -106,6 +106,59 @@ public async Task<int> CountByCourseAsync(
     return await query.CountAsync(ct);
 }
 
+public async Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> AdminSearchAsync(
+    Guid? studentId,
+    Guid? courseId,
+    string? status,
+    int page,
+    int pageSize,
+    CancellationToken ct)
+{
+    var query = _context.Enrollments.AsQueryable();
+
+    if (studentId.HasValue)
+        query = query.Where(e => e.StudentId == studentId.Value);
+
+    if (courseId.HasValue)
+        query = query.Where(e => e.CourseId == courseId.Value);
+
+    if (!string.IsNullOrEmpty(status) &&
+        Enum.TryParse<EnrollmentStatus>(status, true, out var statusEnum))
+    {
+        query = query.Where(e => e.Status == statusEnum);
+    }
+
+    return await query
+        .OrderByDescending(e => e.EnrolledAt)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync(ct);
+}
+
+public async Task<int> AdminCountAsync(
+    Guid? studentId,
+    Guid? courseId,
+    string? status,
+    CancellationToken ct)
+{
+    var query = _context.Enrollments.AsQueryable();
+
+    if (studentId.HasValue)
+        query = query.Where(e => e.StudentId == studentId.Value);
+
+    if (courseId.HasValue)
+        query = query.Where(e => e.CourseId == courseId.Value);
+
+    if (!string.IsNullOrEmpty(status) &&
+        Enum.TryParse<EnrollmentStatus>(status, true, out var statusEnum))
+    {
+        query = query.Where(e => e.Status == statusEnum);
+    }
+
+    return await query.CountAsync(ct);
+}
+
+
 
 
     }

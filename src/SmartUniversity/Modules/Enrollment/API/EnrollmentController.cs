@@ -101,6 +101,28 @@ public async Task<IActionResult> GetStudentsByCourse(
     return Ok(result);
 }
 
+// GET /api/enrollments/admin
+// i will add [Authorize(Roles = "Admin")] later
+[HttpGet("admin")]
+public async Task<IActionResult> AdminSearchEnrollments(
+    [FromQuery] Guid? studentId,
+    [FromQuery] Guid? courseId,
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20)
+{
+    var result = await _mediator.Send(new AdminSearchEnrollmentsQuery
+    {
+        StudentId = studentId,
+        CourseId = courseId,
+        Status = status,
+        Page = page,
+        PageSize = pageSize
+    });
+
+    return Ok(result);
+}
+
 
 
 }
