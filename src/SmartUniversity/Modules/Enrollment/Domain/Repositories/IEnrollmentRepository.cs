@@ -9,5 +9,8 @@ namespace SmartUniversity.Modules.Enrollment.Domain.Repositories
         Task<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment?> GetAsync(
             Guid id, 
             CancellationToken ct);
+
+        Task<bool> ExistsAsync(Guid studentId, Guid courseId, CancellationToken ct);
+
     }
 }
