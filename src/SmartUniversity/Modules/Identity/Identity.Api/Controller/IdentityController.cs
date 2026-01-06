@@ -219,11 +219,11 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// Admin Deletes users by id
         /// </summary>
         [Authorize(Roles = "Admin")]
-        [HttpDelete("user/delete{id}")]
+        [HttpDelete("user/delete/:id")]
         [ProducesResponseType(typeof(UserResponseWrapper), 200)]
-        public async Task<IActionResult> ChangePasswordAsync([FromRoute] string userId)
+        public async Task<IActionResult> ChangePasswordAsync([FromQuery] string id)
         {
-            UserResponse user = await _userServices.DeleteUserAsync(userId);
+            UserResponse user = await _userServices.DeleteUserAsync(id);
             return Ok(new { data = user });
         }
     }
