@@ -70,6 +70,15 @@ public async Task<IActionResult> GetMyEnrollments([FromQuery] GetMyEnrollmentsRe
     return Ok(result);
 }
 
+// PATCH /api/enrollments/{enrollmentId}/drop
+[HttpPatch("{id}/drop")]
+public async Task<IActionResult> Drop(Guid id)
+{
+    await _mediator.Send(new DropEnrollmentCommand(id));
+    return NoContent();
+}
+
+
 
 
 
