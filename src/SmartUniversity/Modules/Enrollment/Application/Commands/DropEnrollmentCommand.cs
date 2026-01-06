@@ -1,5 +1,15 @@
 using MediatR;
+using System;
 
-namespace SmartUniversity.Modules.Enrollment.Application.Commands;
+namespace SmartUniversity.Modules.Enrollment.Application.Commands
+{
+    public class DropEnrollmentCommand : IRequest
+    {
+        public Guid EnrollmentId { get; }
 
-public record DropEnrollmentCommand(Guid EnrollmentId) : IRequest<Unit> ;
+        public DropEnrollmentCommand(Guid enrollmentId)
+        {
+            EnrollmentId = enrollmentId;
+        }
+    }
+}

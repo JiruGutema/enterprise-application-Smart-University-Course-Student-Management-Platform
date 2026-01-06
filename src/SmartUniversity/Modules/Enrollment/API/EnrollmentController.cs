@@ -1,12 +1,14 @@
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SmartUniversity.Modules.Enrollment.Application.Commands;
+using SmartUniversity.Modules.Enrollment.Application.Queries;
+using SmartUniversity.Modules.Enrollment.Api.DTOs;
+using MediatR;
 
 namespace SmartUniversity.Modules.Enrollment.Api;
 
 [ApiController]
 [Route("api/enrollments")]
-// [Authorize]
+[Tags("Enrollment Context")]
 public class EnrollmentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -17,22 +19,134 @@ public class EnrollmentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Enroll(EnrollStudentCommand command)
+    public async Task<IActionResult> Enroll([FromBody] EnrollRequest request)
     {
-        var id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetById), new { id }, id);
-    }
+   
+        var studentId = request.StudentId;
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Drop(Guid id)
-    {
-        await _mediator.Send(new DropEnrollmentCommand(id));
-        return NoContent();
+        var enrollmentId = await _mediator.Send(
+            new EnrollStudentCommand(studentId, request.CourseId)
+        );
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = enrollmentId },
+            new EnrollmentResponse(
+                EnrollmentId: enrollmentId,
+                CourseId: request.CourseId,
+                StudentId: studentId,
+                EnrollmentDate: DateTime.UtcNow,
+                Status: Domain.Enums.EnrollmentStatus.Enrolled,
+                ProgressPercentage: 0
+            )
+        );
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(Guid id)
+public async Task<IActionResult> GetById(Guid id)
+{
+    var enrollment = await _mediator.Send(new GetEnrollmentByIdQuery(id));
+
+    if (enrollment == null)
+        return NotFound(new { error = "Enrollment not found" });
+
+    return Ok(enrollment);
+}
+
+
+   [HttpGet("my")]
+public async Task<IActionResult> GetMyEnrollments([FromQuery] GetMyEnrollmentsRequest request)
+{
+    var studentId = request.StudentId; // will read from JWT later
+
+    var result = await _mediator.Send(new GetMyEnrollmentsQuery
     {
-        return Ok(new { EnrollmentId = id });
+        StudentId = studentId,
+        Status = request.Status,
+        Page = request.Page,
+        PageSize = request.PageSize
+    });
+
+    return Ok(result);
+}
+
+// PATCH /api/enrollments/{enrollmentId}/drop
+
+
+[HttpPatch("{id}/drop")]
+public async Task<IActionResult> Drop(Guid id)
+{
+    await _mediator.Send(new DropEnrollmentCommand(id));
+    return NoContent();
+}
+
+// GET /api/enrollments/courses/{courseId}/students 
+//  will add // [Authorize(Roles = "Instructor,Admin")]
+
+[HttpGet("courses/{courseId}/students")]
+public async Task<IActionResult> GetStudentsByCourse(
+    Guid courseId,
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 50)
+{
+    var result = await _mediator.Send(new GetStudentsByCourseQuery
+    {
+        CourseId = courseId,
+        Status = status,
+        Page = page,
+        PageSize = pageSize
+    });
+
+    return Ok(result);
+}
+
+// GET /api/enrollments/admin
+// i will add [Authorize(Roles = "Admin")] later
+[HttpGet("admin")]
+public async Task<IActionResult> AdminSearchEnrollments(
+    [FromQuery] Guid? studentId,
+    [FromQuery] Guid? courseId,
+    [FromQuery] string? status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20)
+{
+    var result = await _mediator.Send(new AdminSearchEnrollmentsQuery
+    {
+        StudentId = studentId,
+        CourseId = courseId,
+        Status = status,
+        Page = page,
+        PageSize = pageSize
+    });
+
+    return Ok(result);
+}
+
+
+// PATCH /api/enrollments/{enrollmentId}/status
+
+[HttpPatch("{id}/status")]
+public async Task<IActionResult> ChangeStatus(
+    Guid id,
+    [FromBody] ChangeEnrollmentStatusRequest request)
+{
+    await _mediator.Send(new ChangeEnrollmentStatusCommand(id, request.Status));
+    return NoContent();
+}
+
+
+  // GET /api/enrollments/internal/validate-prerequisites
+    [HttpGet("internal/validate-prerequisites")]
+    public IActionResult ValidatePrerequisites([FromQuery] Guid studentId, [FromQuery] Guid courseId)
+    {
+        // TEMP: mock logic for now
+        var response = new PrerequisiteValidationResponse
+        {
+            IsEligible = true,
+            MissingPrerequisites = new List<string>() // empty list = all prerequisites met
+        };
+
+        return Ok(response);
     }
 }

@@ -12,7 +12,7 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Persistence;
 namespace SmartUniversity.Migrations.EnrollmentDb
 {
     [DbContext(typeof(EnrollmentDbContext))]
-    [Migration("20260103130138_InitEnrollment")]
+    [Migration("20260106075710_InitEnrollment")]
     partial class InitEnrollment
     {
         /// <inheritdoc />
