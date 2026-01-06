@@ -491,5 +491,71 @@ namespace SmartUniversity.Modules.Identity.Application.Services
 
             return true;
         }
+
+        public async Task<(
+            UserResponse user,
+            string refreshToken,
+            string accessToken
+        )> ResetPasswordAsync(ResetPasswordRequest request, string userId)
+        {
+            string? resetToken = request.ResetToken;
+            string? newPassword = request.NewPassword;
+            Guid userGuid = Guid.Parse(userId);
+            User? user = await _userRepository.GetUserByIdAsync(userGuid);
+            if (user is null)
+            {
+                throw new UserNotFoundException();
+            }
+            bool isValidToken = _jwtService.ValidateToken(
+                resetToken,
+                TokenType.PasswordReset,
+                out Guid tokenUserId
+            );
+            User updatedUser = null;
+            if (isValidToken)
+            {
+                string passwordHash = _passwordHasher.Hash(newPassword);
+                updatedUser = await _userRepository.UpdateUserAsync(
+                    null,
+                    null,
+                    passwordHash,
+                    userGuid
+                );
+            }
+            if (updatedUser is null)
+            {
+                throw new AppException("Couldn't be able to reset password");
+            }
+
+            tokenUserId = user.Id;
+            string role = user.Role.ToString();
+            string email = user.Email;
+            string accessToken = _jwtService.GenerateToken(
+                tokenUserId,
+                email,
+                role,
+                TokenType.Access
+            );
+            string refreshToken = _jwtService.GenerateToken(
+                tokenUserId,
+                email,
+                role,
+                TokenType.Refresh
+            );
+
+            UserResponse userResponse = new UserResponse
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                IsActive = user.IsActive,
+                Role = user.Role.ToString(),
+            };
+
+            var passwordChangedEvent = new PasswordChangedEvent(user.Id, user.Email, user.FullName);
+            await _eventBus.PublishAsync(passwordChangedEvent);
+
+            return (userResponse, refreshToken, accessToken);
+        }
     }
 }

@@ -180,10 +180,9 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         }
 
         /// <summary>
-        /// admin gets a user information.
+        /// reset password endpoint. this can also be used for forgot password
         /// </summary>
-        [Authorize]
-        [HttpPatch("user/{email}/password-reset")]
+        [HttpGet("auth/password-reset-request")]
         [ProducesResponseType(typeof(UserResponseWrapper), 200)]
         public async Task<IActionResult> ChangePasswordRequestAsync([FromRoute] string email)
         {
@@ -194,6 +193,26 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
             }
 
             return StatusCode(500, new { error = "Failed to send email." });
+        }
+
+        /// <summary>
+        /// verify change password. new password and resettoken should be sent
+        /// via body
+        /// </summary>
+        [HttpPost("auth/change-password")]
+        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
+        public async Task<IActionResult> ChangePasswordAsync(
+            [FromBody] ResetPasswordRequest request
+        )
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var (user, refreshToken, accessToken) = await _userServices.ResetPasswordAsync(
+                request,
+                userId
+            );
+
+            _cookieServices.SetLoginCookies(Response, accessToken, refreshToken);
+            return Ok(new { data = user });
         }
     }
 }
