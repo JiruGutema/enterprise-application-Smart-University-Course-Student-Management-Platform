@@ -86,5 +86,28 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
             await _notificationDbContext.SaveChangesAsync();
             return notification;
         }
+
+        public async Task<PagedResult<Notifications>> SearchNotificationsAsync(string query, int page, int pageSize, Guid userId)
+        {
+            var baseQuery = _notificationDbContext.Notifications.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                baseQuery = baseQuery.Where(u =>
+                    u.Title.Contains(query) || u.Message.Contains(query) || u.UserId == userId
+                );
+            }
+
+            var totalCount = await baseQuery.CountAsync();
+
+            var users = await baseQuery
+                .OrderBy(u => u.CreatedAt) // optional: consistent order
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Notifications> { Items = users, TotalCount = totalCount };
+        }
+
     }
 }

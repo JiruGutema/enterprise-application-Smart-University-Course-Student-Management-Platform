@@ -4,6 +4,8 @@ namespace SmartUniversity.Modules.Notification.Application.Exceptions
 {
     public class AppException : ApplicationExceptionBase
     {
+
+      public override int StatusCode => 400;
         public AppException()
             : base("Internal Server Error") { }
 

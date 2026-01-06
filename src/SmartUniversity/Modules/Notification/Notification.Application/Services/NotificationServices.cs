@@ -1,4 +1,5 @@
 using SmartUniversity.Modules.Notification.Application.DTO;
+using SmartUniversity.Modules.Notification.Application.Exceptions;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Entities;
 using SmartUniversity.Modules.Notification.Domain.Repository;
@@ -122,7 +123,10 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             Guid userId = Guid.Parse(uId);
             try
             {
-                Notifications notification = await _notificationRepository.MarkAsReadAsync(Id, userId);
+                Notifications notification = await _notificationRepository.MarkAsReadAsync(
+                    Id,
+                    userId
+                );
                 NotificationResponse res = new NotificationResponse
                 {
                     Id = notification.Id,
@@ -178,6 +182,45 @@ namespace SmartUniversity.Modules.Notification.Application.Services
             {
                 throw new GetNotificationException("Error marking as read");
             }
+        }
+
+        public async Task<SearchNotificationResponse> SearchNotificationsAsync(
+            SearchNotificationRequest request,
+            string userId
+        )
+        {
+            if (userId is null)
+            {
+                throw new AppException("UserId cannot be null.");
+            }
+            Guid uId = Guid.Parse(userId);
+
+            var result = await _notificationRepository.SearchNotificationsAsync(
+                request.Query,
+                request.Page,
+                request.PageSize,
+                uId
+            );
+
+            var notifcations = result
+                .Items.Select(u => new NotificationResponse
+                {
+                    Id = u.Id,
+                    Title = u.Title,
+                    Message = u.Message,
+                    UserId = u.UserId,
+                    IsRead = u.IsRead,
+                    CreatedAt = u.CreatedAt,
+                })
+                .ToList();
+
+            return new SearchNotificationResponse
+            {
+                Data = notifcations,
+                Total = result.TotalCount,
+                Page = request.Page,
+                PageSize = request.PageSize,
+            };
         }
     }
 }
