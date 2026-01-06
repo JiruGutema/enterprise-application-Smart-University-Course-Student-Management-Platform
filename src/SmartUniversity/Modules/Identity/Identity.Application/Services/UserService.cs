@@ -227,6 +227,15 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 Role = user.Role.ToString(),
             };
 
+            var userLoggedInEvent = new UserLoggedInEvent(
+                user.Id,
+                user.Email,
+                user.FullName,
+                "Addis Ababa, Ethiopia",
+                DateTime.Now
+            );
+            await _eventBus.PublishAsync(userLoggedInEvent);
+
             return (u, refreshToken, accessToken);
         }
 

@@ -4,16 +4,16 @@ using SmartUniversity.Modules.Notification.Domain.Events;
 
 namespace SmartUniversity.Modules.Notification.Application.Events
 {
-    public class UserRegisteredEventHandler
+    public class UserLoggedInEventHandler
     {
-        private readonly ILogger<UserRegisteredEventHandler> _logger;
+        private readonly ILogger<UserLoggedInEventHandler> _logger;
         private readonly IEmailServices _emailServices;
         private readonly INotificationServices _notificationServices;
 
-        public UserRegisteredEventHandler(
+        public UserLoggedInEventHandler(
             IEmailServices emailServices,
             INotificationServices notificationServices,
-            ILogger<UserRegisteredEventHandler> logger
+            ILogger<UserLoggedInEventHandler> logger
         )
         {
             _emailServices = emailServices;
@@ -21,14 +21,15 @@ namespace SmartUniversity.Modules.Notification.Application.Events
             _logger = logger;
         }
 
-        public async Task HandleAsync(UserRegisteredEvent evt)
+        public async Task HandleAsync(UserLoggedInEvent evt)
         {
-            _logger.LogInformation("UserRegisteredEvent received for {Email}", evt.Email);
+            _logger.LogInformation("UserLoggedInEvent received for {Email}", evt.Email);
 
-            await _emailServices.SendWelcomeEmailAsync(evt);
+            await _emailServices.SendLoginDetectedEmailAsync(evt);
             string title = "Registration Successful";
+
             string message =
-                "Welcome! Your registration has been completed successfully. You can now access all features.";
+                $"Login detected from {evt.Location} at {evt.LoginTime:yyyy-MM-dd HH:mm:ss}. If this wasn't you, please secure your account.";
             Notifications notification = new Notifications(
                 evt.UserId,
                 title,

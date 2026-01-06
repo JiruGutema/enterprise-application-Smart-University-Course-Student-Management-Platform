@@ -2,6 +2,7 @@ using SmartUniversity.Modules.Notification.Application.Events;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Application.Services;
 using SmartUniversity.Modules.Notification.Domain.Events;
+using SmartUniversity.Modules.Notification.Domain.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Repository;
 using SmartUniversity.Modules.Notification.Infrastructure;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
@@ -16,7 +17,7 @@ public static class NotificationModule
     {
         services.AddScoped<INotificationServices, NotificationServices>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<EmailServices>();
+        services.AddScoped<IEmailServices, EmailServices>();
 
         services.AddScoped<IEmailSender>(sp =>
         {
@@ -29,6 +30,7 @@ public static class NotificationModule
             return new EmailSender(host, port, user, password);
         });
         services.AddScoped<UserRegisteredEventHandler>();
+        services.AddScoped<UserLoggedInEventHandler>();
 
         return services;
     }
@@ -36,11 +38,19 @@ public static class NotificationModule
     public static void SubscribeNotificationEvents(this IApplicationBuilder app)
     {
         var bus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
+        // subscibe register event
         bus.Subscribe<UserRegisteredEvent>(async evt =>
         {
             using var scope = app.ApplicationServices.CreateScope();
             var handler = scope.ServiceProvider.GetRequiredService<UserRegisteredEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        // subscibe login event
+        bus.Subscribe<UserLoggedInEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<UserLoggedInEventHandler>();
             await handler.HandleAsync(evt);
         });
     }

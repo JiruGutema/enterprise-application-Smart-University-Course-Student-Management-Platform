@@ -1,4 +1,4 @@
-namespace SmartUniversity.Modules.Notification.Application.Interfaces
+namespace SmartUniversity.Modules.Notification.Domain.Interfaces
 {
     public interface IEmailSender
     {
