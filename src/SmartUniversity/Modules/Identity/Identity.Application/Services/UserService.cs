@@ -4,8 +4,8 @@ using SmartUniversity.Modules.Identity.Application.Interfaces;
 using SmartUniversity.Modules.Identity.Application.Security;
 using SmartUniversity.Modules.Identity.Domain.Entities;
 using SmartUniversity.Modules.Identity.Domain.Enums;
-using SmartUniversity.Modules.Identity.Domain.Repository;
 using SmartUniversity.Modules.Identity.Domain.Events;
+using SmartUniversity.Modules.Identity.Domain.Repository;
 using SmartUniversity.Shared.Kernel.Interface;
 
 namespace SmartUniversity.Modules.Identity.Application.Services
@@ -54,8 +54,10 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             {
                 throw new UserAlreadyExistsException("Error creating user", ex);
             }
+            // publish user registered event
             var userRegisteredEvent = new UserRegisteredEvent(user.Id, user.Email, user.FullName);
             await _eventBus.PublishAsync(userRegisteredEvent);
+
             return new UserResponse
             {
                 Id = user.Id,
@@ -271,6 +273,14 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 throw new AppException("Error deactivating user account", e);
             }
 
+            // publish user account deacitvated event
+            var userAccountDeactivatedEvent = new UserAccountDeactivatedEvent(
+                res.Id,
+                res.Email,
+                res.FullName
+            );
+            await _eventBus.PublishAsync(userAccountDeactivatedEvent);
+
             return res;
         }
 
@@ -370,7 +380,12 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 throw new UserNotFoundException();
             }
 
-            User res = await _userRepository.UpdateUserAsync(request.Email, passwordHash, id);
+            User res = await _userRepository.UpdateUserAsync(
+                request.Email,
+                request.FullName,
+                passwordHash,
+                id
+            );
 
             UserResponse user = new UserResponse
             {
@@ -380,6 +395,28 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 IsActive = res.IsActive,
                 Role = res.Role.ToString(),
             };
+
+            if (request.Email != null)
+            {
+                //  publish  email changed event
+                var userEmailUpdatedEvent = new UserEmailUpdatedEvent(
+                    res.Id,
+                    res.Email,
+                    res.FullName
+                );
+                await _eventBus.PublishAsync(userEmailUpdatedEvent);
+            }
+
+            if (request.FullName != null)
+            {
+                // publish  email changed event
+                var userFullNameUpdatedEvent = new UserFullNameUpdatedEvent(
+                    res.Id,
+                    res.Email,
+                    res.FullName
+                );
+                await _eventBus.PublishAsync(userFullNameUpdatedEvent);
+            }
 
             return user;
         }

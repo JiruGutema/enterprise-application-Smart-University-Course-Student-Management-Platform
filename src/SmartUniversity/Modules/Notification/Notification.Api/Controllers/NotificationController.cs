@@ -95,12 +95,12 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         }
 
         /// <summary>
-        /// User searches for a notification with a title or message content.
+        /// User marks all unread notification as read.
         /// </summary>
         [Authorize]
         [HttpPatch("mark-all-as-read")]
         [ProducesResponseType(typeof(void), 200)]
-        public async Task<IActionResult> MarkAllAsReadNotificationAsync([FromQuery] string id)
+        public async Task<IActionResult> MarkAllAsReadNotificationAsync()
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             await _notificationServices.MarkAllAsReadNotificationAsync(userId!);
