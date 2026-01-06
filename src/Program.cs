@@ -18,8 +18,8 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
+using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
 using SmartUniversity.Shared.Kernel.Interface;
-using SmartUniversity.Shared.Kernel.Service;
 using SmartUniversity.Shared.Middleware;
 using SmartUniversity.Modules.Content.Api;
 using SmartUniversity.Modules.Content.Application.Services;
@@ -98,8 +98,16 @@ builder.Services.AddDbContext<ContentDbContext>(options =>
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<MaterialService>();
 
-// Shared event bus
-builder.Services.AddSingleton<IEventBus, InMemoryEventBus>();
+// RabbitMQ Configuration
+builder.Services.AddSingleton(
+    new RabbitMqConnection(
+        host: builder.Configuration["RabbitMQ:Host"]!,
+        username: builder.Configuration["RabbitMQ:Username"]!,
+        password: builder.Configuration["RabbitMQ:Password"]!
+    )
+);
+
+builder.Services.AddSingleton<IEventBus, RabbitMqEventBus>();
 
 // Enrollment DbContext
 builder.Services.AddDbContext<EnrollmentDbContext>(options =>
@@ -113,6 +121,7 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
+
 // builder.Services.AddMediatR(typeof(EnrollStudentCommand).Assembly);
 
 // Modules
