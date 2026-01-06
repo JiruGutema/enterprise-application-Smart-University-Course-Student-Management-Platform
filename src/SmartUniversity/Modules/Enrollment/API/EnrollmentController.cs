@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SmartUniversity.Modules.Enrollment.Application.Commands;
+using SmartUniversity.Modules.Enrollment.Application.Queries;
 using SmartUniversity.Modules.Enrollment.Api.DTOs;
 using MediatR;
 
@@ -48,5 +49,23 @@ public class EnrollmentController : ControllerBase
         return Ok(new { EnrollmentId = id });
     }
 
-  
+   [HttpGet("my")]
+public async Task<IActionResult> GetMyEnrollments([FromQuery] GetMyEnrollmentsRequest request)
+{
+    var studentId = request.StudentId; // will read from JWT later
+
+    var result = await _mediator.Send(new GetMyEnrollmentsQuery
+    {
+        StudentId = studentId,
+        Status = request.Status,
+        Page = request.Page,
+        PageSize = request.PageSize
+    });
+
+    return Ok(result);
+}
+
+
+
+
 }
