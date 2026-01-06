@@ -132,5 +132,18 @@ namespace SmartUniversity.Modules.Notification.Infrastructure.Persistence
             _notificationDbContext.Notifications.Remove(notification);
             await _notificationDbContext.SaveChangesAsync();
         }
+
+        public async Task MarkAllAsReadNotificationAsync(Guid userId)
+        {
+            var notifications = _notificationDbContext
+                .Notifications.Where(n => n.UserId == userId && !n.IsRead)
+                .ToList();
+
+            foreach (var notification in notifications)
+            {
+                notification.MarkAsRead();
+            }
+            await _notificationDbContext.SaveChangesAsync();
+        }
     }
 }

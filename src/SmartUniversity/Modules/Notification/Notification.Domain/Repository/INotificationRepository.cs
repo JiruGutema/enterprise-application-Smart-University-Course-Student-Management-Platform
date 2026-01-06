@@ -25,5 +25,6 @@ namespace SmartUniversity.Modules.Notification.Domain.Repository
         );
 
         Task DeleteNotificationAsync(Guid notificationId, Guid userId);
+        Task MarkAllAsReadNotificationAsync(Guid userId);
     }
 }

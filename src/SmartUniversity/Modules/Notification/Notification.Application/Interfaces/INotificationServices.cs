@@ -19,6 +19,7 @@ namespace SmartUniversity.Modules.Notification.Application.Interfaces
             string userId
         );
         Task DeleteNotificationAsync(string notificationId, string? userId);
+        Task MarkAllAsReadNotificationAsync(string? userId);
 
     }
 }
