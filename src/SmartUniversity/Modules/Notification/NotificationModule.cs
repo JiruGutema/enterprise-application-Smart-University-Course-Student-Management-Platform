@@ -53,5 +53,7 @@ public static class NotificationModule
             var handler = scope.ServiceProvider.GetRequiredService<UserLoggedInEventHandler>();
             await handler.HandleAsync(evt);
         });
+
+
     }
 }

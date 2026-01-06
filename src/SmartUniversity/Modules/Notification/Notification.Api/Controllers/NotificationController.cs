@@ -97,7 +97,7 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
         /// <summary>
         /// User marks all unread notification as read.
         /// </summary>
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPatch("mark-all-as-read")]
         [ProducesResponseType(typeof(void), 200)]
         public async Task<IActionResult> MarkAllAsReadNotificationAsync()

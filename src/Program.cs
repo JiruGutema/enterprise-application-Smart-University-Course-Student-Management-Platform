@@ -7,6 +7,8 @@ using dotenv.net;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using  Swashbuckle.AspNetCore;
+using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
 using SmartUniversity.Modules.Enrollment.Api;
 using SmartUniversity.Modules.Enrollment.Application;
@@ -48,7 +50,34 @@ builder
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddSwaggerGen(c =>
+{
+
+// since we don't this we just use the inline commenting 
+    // Optional: XML comments
+    // var xmlPath = Path.Combine(AppContext.BaseDirectory, "YourApi.xml");
+    // c.IncludeXmlComments(xmlPath);
+ 
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter your token (without 'Bearer ' prefix).",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",   
+        BearerFormat = "JWT"
+    });
+
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecuritySchemeReference("Bearer", document), 
+            new List<string>()
+        }
+    });
+});
 
 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
