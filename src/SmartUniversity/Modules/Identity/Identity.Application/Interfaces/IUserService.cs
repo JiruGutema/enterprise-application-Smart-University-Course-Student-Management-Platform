@@ -20,5 +20,6 @@ namespace SmartUniversity.Modules.Identity.Application.Interfaces
         Task<SearchUserResponse> SearchUsersAsync(SearchUserRequest request);
         Task<UserResponse> UpdateUserAsync(UpdateUserProfile request, string userId);
         Task<UserResponse> UpdateUserRoleAsync(UpdateRoleRequest role, string userId);
+        Task<bool> ResetPasswordRequestAsync(string email);
     }
 }

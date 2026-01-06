@@ -178,5 +178,22 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
             UserResponse user = await _userServices.UpdateUserRoleAsync(request, id);
             return Ok(new { data = user });
         }
+
+        /// <summary>
+        /// admin gets a user information.
+        /// </summary>
+        [Authorize]
+        [HttpPatch("user/{email}/password-reset")]
+        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
+        public async Task<IActionResult> ChangePasswordRequestAsync([FromRoute] string email)
+        {
+            bool sent = await _userServices.ResetPasswordRequestAsync(email);
+            if (sent)
+            {
+                return Ok(new { data = "We have sent you reset link to the email" });
+            }
+
+            return StatusCode(500, new { error = "Failed to send email." });
+        }
     }
 }

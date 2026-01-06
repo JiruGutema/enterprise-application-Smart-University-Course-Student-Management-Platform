@@ -13,5 +13,10 @@ namespace SmartUniversity.Modules.Notification.Application.Interfaces
             UserLoggedInEvent evt,
             CancellationToken cancellationToken = default
         );
+
+        Task SendResetPasswordEmailAsync(
+            ResetPasswordRequestedEvent evt,
+            CancellationToken cancellationToken = default
+        );
     }
 }

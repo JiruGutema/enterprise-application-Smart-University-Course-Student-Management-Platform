@@ -464,5 +464,32 @@ namespace SmartUniversity.Modules.Identity.Application.Services
 
             return user;
         }
+
+        public async Task<bool> ResetPasswordRequestAsync(string email)
+        {
+            User? user = await _userRepository.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                throw new UserNotFoundException("User with this email doesn't exist");
+            }
+            string resetToken = _jwtService.GenerateToken(
+                user.Id,
+                user.Email,
+                user.Role.ToString(),
+                TokenType.PasswordReset
+            );
+            string resetLink = "http://localhost:3000/auth/reset-password?token=" + resetToken;
+
+            // publish user send reset link event
+            var resetPasswordRequestedEvent = new ResetPasswordRequestedEvent(
+                user.Id,
+                user.Email,
+                user.FullName,
+                resetToken
+            );
+            await _eventBus.PublishAsync(resetPasswordRequestedEvent);
+
+            return true;
+        }
     }
 }

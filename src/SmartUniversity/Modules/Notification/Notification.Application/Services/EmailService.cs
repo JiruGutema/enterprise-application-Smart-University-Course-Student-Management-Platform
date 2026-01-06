@@ -1,5 +1,5 @@
-using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Identity.Domain.Events;
+using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Interfaces;
 
 namespace SmartUniversity.Modules.Notification.Application.Services
@@ -39,6 +39,24 @@ namespace SmartUniversity.Modules.Notification.Application.Services
                 $@"
                 <h1>Hello {evt.FullName}!</h1>
                 <p>Login detected from {evt.Location} at {evt.LoginTime:yyyy-MM-dd HH:mm:ss}. If this wasn't you, please secure your account. </p>";
+
+            await _emailSender.SendAsync(evt.Email, subject, body, cancellationToken);
+        }
+
+        public async Task SendResetPasswordEmailAsync(
+            ResetPasswordRequestedEvent evt,
+            CancellationToken cancellationToken = default
+        )
+        {
+            string subject = "Welcome to Smart University!";
+            string body =
+                $@"
+                <h1>Hello {evt.FullName}!</h1>
+                <p>We received a request to reset your password.</p>
+                <p>If you made this request, please click the link below to reset your password:</p>
+                <p><a href=""{evt.ResetLink}"">Reset Password</a></p>
+                <p>If you did not request a password reset, please ignore this email.</p>
+                <p>Thank you,<br/>SmartUniversity Team</p>";
 
             await _emailSender.SendAsync(evt.Email, subject, body, cancellationToken);
         }
