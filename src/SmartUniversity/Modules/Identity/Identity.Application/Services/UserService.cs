@@ -54,9 +54,8 @@ namespace SmartUniversity.Modules.Identity.Application.Services
             {
                 throw new UserAlreadyExistsException("Error creating user", ex);
             }
-            // publish user registered event
-            var userRegisteredEvent = new UserRegisteredEvent(user.Id, user.Email, user.FullName);
-            await _eventBus.PublishAsync(userRegisteredEvent);
+            // Event is raised by User constructor and handled by OutboxInterceptor
+
 
             return new UserResponse
             {
@@ -273,13 +272,8 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 throw new AppException("Error deactivating user account", e);
             }
 
-            // publish user account deacitvated event
-            var userAccountDeactivatedEvent = new UserAccountDeactivatedEvent(
-                res.Id,
-                res.Email,
-                res.FullName
-            );
-            await _eventBus.PublishAsync(userAccountDeactivatedEvent);
+            // Event is raised by User.Deactivate() and handled by OutboxInterceptor
+
 
             return res;
         }
@@ -396,27 +390,8 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 Role = res.Role.ToString(),
             };
 
-            if (request.Email != null)
-            {
-                //  publish  email changed event
-                var userEmailUpdatedEvent = new UserEmailUpdatedEvent(
-                    res.Id,
-                    res.Email,
-                    res.FullName
-                );
-                await _eventBus.PublishAsync(userEmailUpdatedEvent);
-            }
+            // Events are raised by User.UpdateEmail/UpdateFullName
 
-            if (request.FullName != null)
-            {
-                // publish  email changed event
-                var userFullNameUpdatedEvent = new UserFullNameUpdatedEvent(
-                    res.Id,
-                    res.Email,
-                    res.FullName
-                );
-                await _eventBus.PublishAsync(userFullNameUpdatedEvent);
-            }
 
             return user;
         }
@@ -552,8 +527,8 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 Role = user.Role.ToString(),
             };
 
-            var passwordChangedEvent = new PasswordChangedEvent(user.Id, user.Email, user.FullName);
-            await _eventBus.PublishAsync(passwordChangedEvent);
+            // Event is raised by User.ChangePassword()
+
 
             return (userResponse, refreshToken, accessToken);
         }
@@ -574,8 +549,8 @@ namespace SmartUniversity.Modules.Identity.Application.Services
                 throw new UserNotFoundException();
             }
 
-            var userDeletedEvent = new UserDeletedEvent(user.Id, user.Email, user.FullName);
-            await _eventBus.PublishAsync(userDeletedEvent);
+            // Event is raised by User.Delete()
+
 
             UserResponse userResponse = new UserResponse
             {
