@@ -23,15 +23,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.15.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream:Server/SmartUniversity.csproj
-=======
     <PackageReference Include="OpenAI" Version="2.8.0" />
->>>>>>> 5e8113e (feat(ai): complete basic ai integration)
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.15.1" />
     <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
->>>>>>> Stashed changes:SmartUniversity.csproj
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
   </ItemGroup>
