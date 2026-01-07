@@ -50,19 +50,19 @@ public class MaterialRepository : IMaterialRepository
             _ => query.OrderByDescending(m => m.UploadDate)
         };
 
-//         var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-//         return (items, total);
-//     }
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return (items, total);
+    }
 
-//     public async Task UpdateAsync(Material material)
-//     {
-//         _db.Materials.Update(material);
-//         await _db.SaveChangesAsync();
-//     }
+    public async Task UpdateAsync(Material material)
+    {
+        _db.Materials.Update(material);
+        await _db.SaveChangesAsync();
+    }
 
-//     public async Task DeleteAsync(Material material)
-//     {
-//         _db.Materials.Remove(material);
-//         await _db.SaveChangesAsync();
-//     }
-// }
+    public async Task DeleteAsync(Material material)
+    {
+        _db.Materials.Remove(material);
+        await _db.SaveChangesAsync();
+    }
+}
