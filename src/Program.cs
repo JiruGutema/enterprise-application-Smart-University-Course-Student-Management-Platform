@@ -19,6 +19,7 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Persistence;
 using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.AI;
+using SmartUniversity.Modules.GradingAndAssessment;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
@@ -30,6 +31,7 @@ using SmartUniversity.Modules.Content.Domain.Repositories;
 using SmartUniversity.Modules.Content.Infrastructure.Persistence;
 using Quartz;
 using SmartUniversity.Modules.Identity.Infrastructure.Outbox;
+using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -157,16 +159,25 @@ builder.Services.AddMediatR(typeof(Program).Assembly);
 
 // Register Identity Outbox Publisher
 builder.Services.AddScoped<IdentityOutboxPublisher>();
+builder.Services.AddScoped<GradingOutboxPublisher>();
 
 // Quartz Configuration
 builder.Services.AddQuartz(q =>
 {
-    var jobKey = new JobKey("IdentityOutboxPublishJob");
-    q.AddJob<IdentityOutboxPublishJob>(opts => opts.WithIdentity(jobKey));
-
+    var identityJobKey = new JobKey("IdentityOutboxPublishJob");
+    q.AddJob<IdentityOutboxPublishJob>(opts => opts.WithIdentity(identityJobKey));
     q.AddTrigger(opts => opts
-        .ForJob(jobKey)
+        .ForJob(identityJobKey)
         .WithIdentity("IdentityOutboxPublishJob-trigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(10)
+            .RepeatForever()));
+
+    var gradingJobKey = new JobKey("GradingOutboxPublishJob");
+    q.AddJob<GradingOutboxPublishJob>(opts => opts.WithIdentity(gradingJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(gradingJobKey)
+        .WithIdentity("GradingOutboxPublishJob-trigger")
         .WithSimpleSchedule(x => x
             .WithIntervalInSeconds(10)
             .RepeatForever()));
@@ -178,6 +189,7 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddNotificationModule(builder.Configuration);
 builder.Services.AddAIModule(builder.Configuration);
+builder.Services.AddGradingAndAssessmentModule(builder.Configuration);
 
 var app = builder.Build();
 
