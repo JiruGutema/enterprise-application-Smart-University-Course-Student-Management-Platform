@@ -31,6 +31,8 @@ public static class NotificationModule
         });
         services.AddScoped<UserRegisteredEventHandler>();
         services.AddScoped<UserLoggedInEventHandler>();
+        services.AddScoped<PasswordChangedEventHandler>();
+        services.AddScoped<ResetPasswordRequestedEventHandler>();
 
         return services;
     }
@@ -54,6 +56,21 @@ public static class NotificationModule
             await handler.HandleAsync(evt);
         });
 
+        // subscibe login event
+        bus.Subscribe<PasswordChangedEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<PasswordChangedEventHandler>();
+            await handler.HandleAsync(evt);
+        });
 
+        // subscibe login event
+        bus.Subscribe<ResetPasswordRequestedEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler =
+                scope.ServiceProvider.GetRequiredService<ResetPasswordRequestedEventHandler>();
+            await handler.HandleAsync(evt);
+        });
     }
 }

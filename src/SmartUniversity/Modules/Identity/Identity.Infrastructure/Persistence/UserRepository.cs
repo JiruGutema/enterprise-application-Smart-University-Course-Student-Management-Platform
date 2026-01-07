@@ -144,5 +144,16 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             User? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
         }
+
+        public async Task<User> DeleteUserAsync(Guid userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+            return user;
+        }
     }
 }

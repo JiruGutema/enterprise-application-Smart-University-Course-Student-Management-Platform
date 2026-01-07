@@ -178,5 +178,53 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
             UserResponse user = await _userServices.UpdateUserRoleAsync(request, id);
             return Ok(new { data = user });
         }
+
+        /// <summary>
+        /// reset password endpoint. this can also be used for forgot password
+        /// </summary>
+        [HttpGet("password-reset-request")]
+        [ProducesResponseType(typeof(string), 200)]
+        public async Task<IActionResult> ChangePasswordRequestAsync([FromQuery] string email)
+        {
+            bool sent = await _userServices.ResetPasswordRequestAsync(email);
+            if (sent)
+            {
+                return Ok(new { message = "We have sent you reset link to the email" });
+            }
+
+            return StatusCode(500, new { error = "Failed to send email." });
+        }
+
+        /// <summary>
+        /// verify change password. new password and resettoken should be sent
+        /// via body
+        /// </summary>
+        [HttpPost("password-reset/confirm")]
+        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
+        public async Task<IActionResult> ChangePasswordAsync(
+            [FromBody] ResetPasswordRequest request
+        )
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var (user, refreshToken, accessToken) = await _userServices.ResetPasswordAsync(
+                request,
+                userId
+            );
+
+            _cookieServices.SetLoginCookies(Response, accessToken, refreshToken);
+            return Ok(new { data = user });
+        }
+
+        /// <summary>
+        /// Admin Deletes users by id
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("user/delete/:id")]
+        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
+        public async Task<IActionResult> ChangePasswordAsync([FromQuery] string id)
+        {
+            UserResponse user = await _userServices.DeleteUserAsync(id);
+            return Ok(new { data = user });
+        }
     }
 }
