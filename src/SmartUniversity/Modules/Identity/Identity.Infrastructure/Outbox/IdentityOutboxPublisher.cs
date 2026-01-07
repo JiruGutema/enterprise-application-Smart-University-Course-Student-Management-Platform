@@ -51,7 +51,7 @@ public sealed class IdentityOutboxPublisher
             }
             catch (Exception ex)
             {
-                message.MarkFailed(ex.Message); // Consider including ex.InnerException specific details if needed
+                message.MarkFailed(ex.Message);
             }
         }
 

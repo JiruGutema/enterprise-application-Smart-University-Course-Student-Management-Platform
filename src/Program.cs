@@ -21,6 +21,7 @@ using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.AI;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
+using SmartUniversity.Modules.AI.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
 using SmartUniversity.Shared.Kernel.Interface;
 using SmartUniversity.Shared.Middleware;
@@ -128,8 +129,12 @@ builder.Services.AddDbContext<UserDbContext>(options =>
 builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
+
+builder.Services.AddDbContext<AIDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
 builder.Services.AddDbContext<ContentDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<MaterialService>();
