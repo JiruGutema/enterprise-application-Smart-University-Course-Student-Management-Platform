@@ -18,6 +18,7 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Outbox;
 using SmartUniversity.Modules.Enrollment.Infrastructure.Persistence;
 using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
 using SmartUniversity.Modules.Identity;
+using SmartUniversity.Modules.AI;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
@@ -27,6 +28,8 @@ using SmartUniversity.Modules.Content.Api;
 using SmartUniversity.Modules.Content.Application.Services;
 using SmartUniversity.Modules.Content.Domain.Repositories;
 using SmartUniversity.Modules.Content.Infrastructure.Persistence;
+using Quartz;
+using SmartUniversity.Modules.Identity.Infrastructure.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -117,7 +120,11 @@ builder
 builder.Services.AddAuthorization();
 
 // Database
-builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddDbContext<UserDbContext>(options => 
+    options.UseNpgsql(connectionString)
+           .AddInterceptors(new IdentityOutboxInterceptor()));
+
 builder.Services.AddDbContext<NotificationDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
@@ -148,12 +155,29 @@ builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddMediatR(typeof(Program).Assembly);
 
+// Register Identity Outbox Publisher
+builder.Services.AddScoped<IdentityOutboxPublisher>();
 
-// builder.Services.AddMediatR(typeof(EnrollStudentCommand).Assembly);
+// Quartz Configuration
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("IdentityOutboxPublishJob");
+    q.AddJob<IdentityOutboxPublishJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("IdentityOutboxPublishJob-trigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(10)
+            .RepeatForever()));
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 // Modules
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddNotificationModule(builder.Configuration);
+builder.Services.AddAIModule(builder.Configuration);
 
 var app = builder.Build();
 

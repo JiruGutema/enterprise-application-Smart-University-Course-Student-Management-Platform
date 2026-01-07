@@ -106,28 +106,24 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             Guid id
         )
         {
+            User? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) throw new RepositoryException("User not found for update");
+
             if (email != null)
             {
-                await _context
-                    .Users.Where(u => u.Id == id)
-                    .ExecuteUpdateAsync(u => u.SetProperty(x => x.Email, email));
+                user.UpdateEmail(email);
             }
 
             if (fullName != null)
             {
-                await _context
-                    .Users.Where(u => u.Id == id)
-                    .ExecuteUpdateAsync(u => u.SetProperty(x => x.FullName, fullName));
+                user.UpdateFullName(fullName);
             }
             if (passwordHash != null)
             {
-                await _context
-                    .Users.Where(user => user.Id == id)
-                    .ExecuteUpdateAsync(u => u.SetProperty(x => x.PasswordHash, passwordHash));
+                user.ChangePassword(passwordHash);
             }
 
             await _context.SaveChangesAsync();
-            User? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             return user;
         }
 
@@ -137,11 +133,11 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             {
                 throw new InvalidRoleException();
             }
-            await _context
-                .Users.Where(user => user.Id == id)
-                .ExecuteUpdateAsync(u => u.SetProperty(x => x.Role, role));
-            await _context.SaveChangesAsync();
             User? user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) throw new RepositoryException("User not found for role update");
+            
+            user.ChangeRole(role);
+            await _context.SaveChangesAsync();
             return user;
         }
 
@@ -150,6 +146,7 @@ namespace SmartUniversity.Modules.Identity.Infrastructure.Persistence
             var user = await _context.Users.FindAsync(userId);
             if (user != null)
             {
+                user.Delete();
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
