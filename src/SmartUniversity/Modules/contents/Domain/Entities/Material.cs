@@ -41,22 +41,22 @@ public class Material
     }
 
     // Business Logic: Update Metadata
-//     public void UpdateMetadata(string? title, string? description, Guid? lessonId)
-//     {
-//         if (!string.IsNullOrWhiteSpace(title)) Title = title;
-//         if (description != null) Description = description;
-//         if (lessonId.HasValue) LessonId = lessonId;
-//         UpdatedAt = DateTime.UtcNow;
-//     }
+    public void UpdateMetadata(string? title, string? description, Guid? lessonId)
+    {
+        if (!string.IsNullOrWhiteSpace(title)) Title = title;
+        if (description != null) Description = description;
+        if (lessonId.HasValue) LessonId = lessonId;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
-//     // Business Logic: Replace File
-//     public void ReplaceFile(string fileName, string filePath, string fileType, long sizeInBytes)
-//     {
-//         FileName = fileName;
-//         FilePath = filePath;
-//         FileType = fileType;
-//         SizeInBytes = sizeInBytes;
-//         UploadDate = DateTime.UtcNow; // Reset upload date to now
-//         UpdatedAt = DateTime.UtcNow;
-//     }
-// }
+    // Business Logic: Replace File
+    public void ReplaceFile(string fileName, string filePath, string fileType, long sizeInBytes)
+    {
+        FileName = fileName;
+        FilePath = filePath;
+        FileType = fileType;
+        SizeInBytes = sizeInBytes;
+        UploadDate = DateTime.UtcNow; // Reset upload date to now
+        UpdatedAt = DateTime.UtcNow;
+    }
+}
