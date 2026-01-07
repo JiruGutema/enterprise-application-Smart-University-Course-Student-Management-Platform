@@ -69,8 +69,8 @@ public static class ContentEndpoints
         });
 
         // 8. STUDENT DASHBOARD
-        // group.MapGet("/my/materials", (Guid? courseId, [FromQuery] bool recentFirst) => {
-        //     return Results.Ok(new List<CourseMaterialsDashboardDto>()); 
-        // });
+        group.MapGet("/my/materials", (Guid? courseId, [FromQuery] bool recentFirst) => {
+            return Results.Ok(new List<CourseMaterialsDashboardDto>()); 
+        });
     }
 }
