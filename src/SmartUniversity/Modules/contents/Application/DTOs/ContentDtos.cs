@@ -40,11 +40,11 @@ public class CourseMaterialsDashboardDto
 }
 
 // Request class for Upload Endpoint
-// public class MaterialUploadRequest
-// {
-//     public required IFormFile File { get; set; }
-//     public string? Title { get; set; }
-//     public string? Description { get; set; }
-//     public string? LessonId { get; set; } 
-//     public string? UploadedByUserId { get; set; }
-// }
+public class MaterialUploadRequest
+{
+    public required IFormFile File { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? LessonId { get; set; } 
+    public string? UploadedByUserId { get; set; }
+}
