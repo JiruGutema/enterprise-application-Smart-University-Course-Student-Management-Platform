@@ -8,11 +8,11 @@ namespace SmartUniversity.Modules.Notification.Api.Controllers
 {
     [Controller]
     [Route("api/notification")]
-    public class NotificationControllers : ControllerBase
+    public class NotificationController : ControllerBase
     {
         private readonly INotificationServices _notificationServices;
 
-        public NotificationControllers(INotificationServices notificationServices)
+        public NotificationController(INotificationServices notificationServices)
         {
             _notificationServices = notificationServices;
         }

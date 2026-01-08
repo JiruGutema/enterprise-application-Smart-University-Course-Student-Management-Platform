@@ -36,6 +36,23 @@ public class OutboxMessage
         Error = error;
     }
 
+    public bool ShouldRetry()
+    {
+        return RetryCount < 5 && 
+               DateTime.UtcNow > OccurredAt.AddMinutes(Math.Pow(2, RetryCount));
+    }
+
+    public bool HasExceededMaxRetries()
+    {
+        return RetryCount >= 5;
+    }
+
+    public void MarkAsDeadLetter(string reason)
+    {
+        Error = $"Dead Letter: {reason}";
+        // You might want to add a separate DeadLetter flag or move to a different table
+    }
+
     public object? Deserialize()
     {
         var type = System.Type.GetType(Type);
