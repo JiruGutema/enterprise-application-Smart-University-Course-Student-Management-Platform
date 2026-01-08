@@ -25,6 +25,15 @@ public sealed class IdentityOutboxPublisher
 
         foreach (var message in messages)
         {
+            if (message.HasExceededMaxRetries())
+            {
+                message.MarkAsDeadLetter("Exceeded maximum retry attempts");
+                continue;
+            }
+
+            if (!message.ShouldRetry())
+                continue;
+
             try
             {
                 var eventMessage = message.Deserialize();

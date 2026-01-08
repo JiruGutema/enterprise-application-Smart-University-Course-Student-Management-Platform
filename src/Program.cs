@@ -19,6 +19,7 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Persistence;
 using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.AI;
+using SmartUniversity.Modules.Courses;
 using SmartUniversity.Modules.GradingAndAssessment;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
@@ -33,6 +34,7 @@ using SmartUniversity.Modules.Content.Infrastructure.Persistence;
 using Quartz;
 using SmartUniversity.Modules.Identity.Infrastructure.Outbox;
 using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Outbox;
+using SmartUniversity.Modules.Courses.Infrastructure.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -167,6 +169,7 @@ builder.Services.AddScoped<IdentityOutboxPublisher>();
 builder.Services.AddScoped<GradingOutboxPublisher>();
 builder.Services.AddScoped<EnrollmentOutboxPublisher>();
 
+builder.Services.AddScoped<CourseOutboxPublisher>();
 
 // Quartz Configuration
 builder.Services.AddQuartz(q =>
@@ -198,6 +201,13 @@ builder.Services.AddQuartz(q =>
         .WithIdentity("EnrollmentOutboxPublishJob-trigger")
         .WithSimpleSchedule(x => x
             .WithIntervalInSeconds(10) 
+    var courseJobKey = new JobKey("CourseOutboxPublishJob");
+    q.AddJob<CourseOutboxPublishJob>(opts => opts.WithIdentity(courseJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(courseJobKey)
+        .WithIdentity("CourseOutboxPublishJob-trigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(10)
             .RepeatForever()));
 });
 
@@ -207,6 +217,7 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddNotificationModule(builder.Configuration);
 builder.Services.AddAIModule(builder.Configuration);
+builder.Services.AddCoursesModule(builder.Configuration);
 builder.Services.AddGradingAndAssessmentModule(builder.Configuration);
 
 var app = builder.Build();
