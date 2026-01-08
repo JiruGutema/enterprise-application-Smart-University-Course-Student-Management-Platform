@@ -19,6 +19,7 @@ using SmartUniversity.Modules.Enrollment.Infrastructure.Persistence;
 using SmartUniversity.Modules.Enrollment.Infrastructure.Repositories;
 using SmartUniversity.Modules.Identity;
 using SmartUniversity.Modules.AI;
+using SmartUniversity.Modules.Courses;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Notification.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
@@ -178,6 +179,7 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddNotificationModule(builder.Configuration);
 builder.Services.AddAIModule(builder.Configuration);
+builder.Services.AddCoursesModule(builder.Configuration);
 
 var app = builder.Build();
 
