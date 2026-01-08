@@ -77,6 +77,8 @@ public async Task<IActionResult> GetById(Guid id)
 
     if (enrollment == null)
         return NotFound();
+    if (roles.Contains("Student") && enrollment.StudentId != userId)
+        return Forbid();
 
     return Ok(enrollment);
 }

@@ -14,6 +14,7 @@ namespace SmartUniversity.Modules.Enrollment.Api.DTOs
     public class EnrollmentDetailsResponse
     {
         public Guid EnrollmentId { get; set; }
+        public Guid StudentId { get; set; } 
         public EnrollmentCourseInfo Course { get; set; } = new EnrollmentCourseInfo();
         public DateTime EnrollmentDate { get; set; }
         public string Status { get; set; } = string.Empty;
