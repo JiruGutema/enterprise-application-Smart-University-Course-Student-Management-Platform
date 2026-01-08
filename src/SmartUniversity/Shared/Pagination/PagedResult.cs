@@ -1,8 +1,23 @@
-namespace SmartUniversity.Shared.Pagination
+namespace SmartUniversity.Shared.Pagination;
+
+public sealed class PagedResult<T>
 {
-    public class PagedResult<T>
+    public IReadOnlyList<T> Items { get; }
+    public int Page { get; }
+    public int PageSize { get; }
+    public int TotalCount { get; }
+    public int TotalPages { get; }
+
+    public PagedResult(
+        IReadOnlyList<T> items,
+        int page,
+        int pageSize,
+        int totalCount)
     {
-        public List<T> Items { get; set; } = new();
-        public int TotalCount { get; set; }
+        Items = items;
+        Page = page;
+        PageSize = pageSize;
+        TotalCount = totalCount;
+        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
     }
 }
