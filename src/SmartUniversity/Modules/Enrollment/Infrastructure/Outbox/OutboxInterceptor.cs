@@ -39,7 +39,7 @@ namespace SmartUniversity.Modules.Enrollment.Infrastructure.Outbox
 
                     foreach (var domainEvent in domainEvents)
                     {
-                        // Create OutboxMessage objects and collect them (do NOT add to context yet)
+                        // Create OutboxMessage objects and collect them
                         outboxMessages.Add(OutboxMessage.From(domainEvent));
                     }
 

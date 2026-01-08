@@ -20,21 +20,24 @@ namespace SmartUniversity.Modules.Enrollment.Application.Handlers
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Unit> Handle(DropEnrollmentCommand request, CancellationToken ct)
-        {
-            var enrollment = await _repository.GetAsync(request.EnrollmentId, ct);
+       public async Task<Unit> Handle(DropEnrollmentCommand request, CancellationToken ct)
+{
+    var enrollment = await _repository.GetAsync(request.EnrollmentId, ct);
 
-            if (enrollment == null)
-                throw new KeyNotFoundException("Enrollment not found.");
+    if (enrollment == null)
+        throw new KeyNotFoundException("Enrollment not found.");
 
-            if (enrollment.Status == EnrollmentStatus.Dropped)
-                return Unit.Value; // idempotent
+    if (!request.IsAdmin && enrollment.StudentId != request.ActorUserId)
+        throw new UnauthorizedAccessException("You cannot drop this enrollment.");
 
-            enrollment.Drop(); // domain method
+    if (enrollment.Status == EnrollmentStatus.Dropped)
+        return Unit.Value; 
+    enrollment.Drop();
 
-            await _unitOfWork.CommitAsync(ct);
+    await _unitOfWork.CommitAsync(ct);
 
-            return Unit.Value;
-        }
+    return Unit.Value;
+}
+
     }
 }

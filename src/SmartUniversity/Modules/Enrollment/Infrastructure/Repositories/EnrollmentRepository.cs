@@ -18,8 +18,7 @@ namespace SmartUniversity.Modules.Enrollment.Infrastructure.Repositories
             CancellationToken ct)
         {
             await _context.Enrollments.AddAsync(enrollment, ct);
-            await _context.SaveChangesAsync(ct);
-            return enrollment;
+    return enrollment;
         }
 
         public async Task<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment?> GetAsync(

@@ -167,6 +167,8 @@ builder.Services.AddMediatR(typeof(Program).Assembly);
 // Register Identity Outbox Publisher
 builder.Services.AddScoped<IdentityOutboxPublisher>();
 builder.Services.AddScoped<GradingOutboxPublisher>();
+builder.Services.AddScoped<EnrollmentOutboxPublisher>();
+
 builder.Services.AddScoped<CourseOutboxPublisher>();
 
 // Quartz Configuration
@@ -190,6 +192,15 @@ builder.Services.AddQuartz(q =>
             .WithIntervalInSeconds(10)
             .RepeatForever()));
 
+    var enrollmentJobKey = new JobKey("EnrollmentOutboxPublishJob");
+
+    q.AddJob<EnrollmentOutboxPublishJob>(opts => opts.WithIdentity(enrollmentJobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(enrollmentJobKey)
+        .WithIdentity("EnrollmentOutboxPublishJob-trigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(10) 
     var courseJobKey = new JobKey("CourseOutboxPublishJob");
     q.AddJob<CourseOutboxPublishJob>(opts => opts.WithIdentity(courseJobKey));
     q.AddTrigger(opts => opts
@@ -213,6 +224,7 @@ var app = builder.Build();
 
 // register event subscriptions
 app.SubscribeNotificationEvents();
+// app.SubscribeEnrollmentEvents();
 
 // Middleware pipeline
 if (app.Environment.IsDevelopment())
