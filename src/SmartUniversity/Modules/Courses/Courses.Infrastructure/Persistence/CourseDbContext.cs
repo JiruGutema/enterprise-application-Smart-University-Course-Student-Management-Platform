@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartUniversity.Modules.Courses.Domain.Aggregates;
 using SmartUniversity.Modules.Courses.Domain.ValueObjects;
+using SmartUniversity.Modules.Courses.Domain.Enums;
 using System.Linq;
 
 namespace SmartUniversity.Modules.Courses.Infrastructure.Persistence;
@@ -10,6 +11,8 @@ public class CourseDbContext : DbContext
     public CourseDbContext(DbContextOptions<CourseDbContext> options) : base(options) { }
 
     public DbSet<Course> Courses => Set<Course>();
+    public DbSet<Module> Modules => Set<Module>();
+    public DbSet<Lesson> Lessons => Set<Lesson>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,10 +22,10 @@ public class CourseDbContext : DbContext
 
             entity.HasKey(c => c.Id);
             entity.Property(c => c.Title).IsRequired().HasMaxLength(200);
-            entity.Property(c => c.Code).IsRequired().HasMaxLength(50);
+            entity.Property(c => c.Code).HasConversion(c => c.Value, v => CourseCode.Create(v)).IsRequired().HasMaxLength(50);
             entity.Property(c => c.Description).HasMaxLength(2000);
+            entity.Property(c => c.Status).HasDefaultValue(CourseStatus.Draft);
             entity.Property(c => c.InstructorId).IsRequired();
-            entity.Property(c => c.IsPublished).HasDefaultValue(false);
             entity.Property(c => c.CreatedAt).IsRequired();
             entity.Property(c => c.UpdatedAt).IsRequired();
 
@@ -34,6 +37,26 @@ public class CourseDbContext : DbContext
                             .Select(x => CourseCode.Create(x))      // string → List<CourseCode>
                             .ToList()
                   );
+        });
+
+        modelBuilder.Entity<Module>(entity =>
+        {
+            entity.ToTable("modules", "courses");
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.Name).IsRequired().HasMaxLength(200);
+            entity.Property(m => m.Description).HasMaxLength(1000);
+            entity.Property(m => m.Order).IsRequired();
+            entity.HasOne<Course>().WithMany().HasForeignKey("CourseId");
+        });
+
+        modelBuilder.Entity<Lesson>(entity =>
+        {
+            entity.ToTable("lessons", "courses");
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Name).IsRequired().HasMaxLength(200);
+            entity.Property(l => l.Content).HasMaxLength(5000);
+            entity.Property(l => l.Order).IsRequired();
+            entity.HasOne<Module>().WithMany().HasForeignKey("ModuleId");
         });
     }
 }

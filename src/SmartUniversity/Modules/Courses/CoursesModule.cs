@@ -22,6 +22,8 @@ public static class CoursesModule
 
         // 2️⃣ Register Repositories
         services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IModuleRepository, ModuleRepository>();
+        services.AddScoped<ILessonRepository, LessonRepository>();
 
         // 3️⃣ Register Services
         services.AddScoped<CourseService>();
