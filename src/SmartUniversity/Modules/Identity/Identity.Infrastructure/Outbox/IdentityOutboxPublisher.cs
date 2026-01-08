@@ -25,6 +25,16 @@ public sealed class IdentityOutboxPublisher
 
         foreach (var message in messages)
         {
+            if (message.HasExceededMaxRetries())
+            {
+                message.MarkAsDeadLetter("Exceeded maximum retry attempts");
+                continue;
+            }
+
+            // Skip messages that shouldn't be retried yet (exponential backoff)
+            if (!message.ShouldRetry())
+                continue;
+
             try
             {
                 var eventMessage = message.Deserialize();
@@ -34,7 +44,8 @@ public sealed class IdentityOutboxPublisher
                 }
                 else
                 {
-                    var method = _eventBus.GetType()
+                    var method = 
+                    elseetType()
                         .GetMethod(nameof(IEventBus.PublishAsync))?
                         .MakeGenericMethod(eventMessage.GetType());
 
@@ -53,8 +64,5 @@ public sealed class IdentityOutboxPublisher
             {
                 message.MarkFailed(ex.Message);
             }
-        }
-
-        await _db.SaveChangesAsync(ct);
-    }
-}
+  
+        }}}

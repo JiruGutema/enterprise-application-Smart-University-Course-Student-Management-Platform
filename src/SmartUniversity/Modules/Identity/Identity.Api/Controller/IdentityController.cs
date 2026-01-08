@@ -11,13 +11,13 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
 {
     [Controller]
     [Route("api/identity")]
-    public class IdentityControllers : ControllerBase
+    public class IdentityController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly IUserServices _userServices;
         private readonly ICookieService _cookieServices;
 
-        public IdentityControllers(IMediator mediator, IUserServices userServices, ICookieService cookieServices)
+        public IdentityController(IMediator mediator, IUserServices userServices, ICookieService cookieServices)
         {
             _mediator = mediator;
             _userServices = userServices;
