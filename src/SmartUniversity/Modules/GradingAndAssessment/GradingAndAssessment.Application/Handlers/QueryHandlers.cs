@@ -1,6 +1,7 @@
 using MediatR;
 using SmartUniversity.Modules.GradingAndAssessment.Application.DTOs;
 using SmartUniversity.Modules.GradingAndAssessment.Application.Queries;
+using SmartUniversity.Modules.GradingAndAssessment.Application.Services;
 using SmartUniversity.Modules.GradingAndAssessment.Domain.Repositories;
 using SmartUniversity.Modules.GradingAndAssessment.Domain.Services;
 
@@ -38,22 +39,33 @@ public class GetStudentGradeSummaryQueryHandler : IRequestHandler<GetStudentGrad
     private readonly IAssignmentRepository _assignmentRepository;
     private readonly IGradeRepository _gradeRepository;
     private readonly GradeCalculationService _gradeCalculationService;
+    private readonly IEnrollmentLookupService _enrollmentLookupService;
 
     public GetStudentGradeSummaryQueryHandler(
         IAssignmentRepository assignmentRepository, 
         IGradeRepository gradeRepository,
-        GradeCalculationService gradeCalculationService)
+        GradeCalculationService gradeCalculationService,
+        IEnrollmentLookupService enrollmentLookupService)
     {
         _assignmentRepository = assignmentRepository;
         _gradeRepository = gradeRepository;
         _gradeCalculationService = gradeCalculationService;
+        _enrollmentLookupService = enrollmentLookupService;
     }
 
     public async Task<StudentGradeSummaryResponse> Handle(GetStudentGradeSummaryQuery request, CancellationToken cancellationToken)
     {
         var assignments = await _assignmentRepository.GetByCourseIdAsync(request.CourseId);
-        var enrollmentId = Guid.NewGuid(); // Placeholder
-        var grades = await _gradeRepository.GetByEnrollmentIdAsync(enrollmentId);
+        
+        // Get enrollment ID from cache
+        var enrollmentId = await _enrollmentLookupService.GetEnrollmentIdAsync(request.StudentId, request.CourseId, cancellationToken);
+        if (enrollmentId == null)
+            throw new InvalidOperationException($"No active enrollment found for student {request.StudentId} in course {request.CourseId}");
+
+        var grades = await _gradeRepository.GetByEnrollmentIdAsync(enrollmentId.Value);
+
+        // Get course title from cache
+        var courseTitle = await _enrollmentLookupService.GetCourseTitleAsync(request.CourseId, cancellationToken) ?? "Unknown Course";
 
         var breakdown = assignments.Select(a =>
         {
@@ -76,7 +88,7 @@ public class GetStudentGradeSummaryQueryHandler : IRequestHandler<GetStudentGrad
 
         return new StudentGradeSummaryResponse(
             request.CourseId,
-            "Course Title", // Placeholder
+            courseTitle,
             totalWeightedScore,
             letterGrade,
             completedAssignments,
