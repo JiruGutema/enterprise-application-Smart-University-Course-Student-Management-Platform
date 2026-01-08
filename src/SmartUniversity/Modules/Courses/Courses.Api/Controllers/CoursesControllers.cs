@@ -126,4 +126,67 @@ public class CoursesController : ControllerBase
         var courseList = await _mediator.Send(new GetCoursesByCodesQuery(codes.Split(',')));
         return Ok(courseList);
     }
+
+    // POST /api/courses/{courseId}/modules
+    [HttpPost("{courseId}/modules")]
+    public async Task<IActionResult> CreateModule(Guid courseId, [FromBody] CreateModuleRequest request)
+    {
+        var moduleId = await _mediator.Send(new CreateModuleCommand(courseId, request.Name, request.Description, request.Order));
+        return CreatedAtAction(nameof(GetModule), new { courseId, moduleId }, new { ModuleId = moduleId });
+    }
+
+    // PUT /api/courses/{courseId}/modules/{moduleId}
+    [HttpPut("{courseId}/modules/{moduleId}")]
+    public async Task<IActionResult> UpdateModule(Guid courseId, Guid moduleId, [FromBody] UpdateModuleRequest request)
+    {
+        await _mediator.Send(new UpdateModuleCommand(moduleId, request.Name, request.Description, request.Order));
+        return NoContent();
+    }
+
+    // DELETE /api/courses/{courseId}/modules/{moduleId}
+    [HttpDelete("{courseId}/modules/{moduleId}")]
+    public async Task<IActionResult> DeleteModule(Guid courseId, Guid moduleId)
+    {
+        await _mediator.Send(new DeleteModuleCommand(moduleId));
+        return NoContent();
+    }
+
+    // POST /api/courses/{courseId}/modules/{moduleId}/lessons
+    [HttpPost("{courseId}/modules/{moduleId}/lessons")]
+    public async Task<IActionResult> CreateLesson(Guid courseId, Guid moduleId, [FromBody] CreateLessonRequest request)
+    {
+        var lessonId = await _mediator.Send(new CreateLessonCommand(moduleId, request.Name, request.Content, request.Order));
+        return CreatedAtAction(nameof(GetLesson), new { courseId, moduleId, lessonId }, new { LessonId = lessonId });
+    }
+
+    // PUT /api/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}
+    [HttpPut("{courseId}/modules/{moduleId}/lessons/{lessonId}")]
+    public async Task<IActionResult> UpdateLesson(Guid courseId, Guid moduleId, Guid lessonId, [FromBody] UpdateLessonRequest request)
+    {
+        await _mediator.Send(new UpdateLessonCommand(lessonId, request.Name, request.Content, request.Order));
+        return NoContent();
+    }
+
+    // DELETE /api/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}
+    [HttpDelete("{courseId}/modules/{moduleId}/lessons/{lessonId}")]
+    public async Task<IActionResult> DeleteLesson(Guid courseId, Guid moduleId, Guid lessonId)
+    {
+        await _mediator.Send(new DeleteLessonCommand(lessonId));
+        return NoContent();
+    }
+
+    // Placeholder for GetModule and GetLesson
+    [HttpGet("{courseId}/modules/{moduleId}")]
+    public async Task<IActionResult> GetModule(Guid courseId, Guid moduleId)
+    {
+        // TODO: Implement module details
+        return Ok();
+    }
+
+    [HttpGet("{courseId}/modules/{moduleId}/lessons/{lessonId}")]
+    public async Task<IActionResult> GetLesson(Guid courseId, Guid moduleId, Guid lessonId)
+    {
+        // TODO: Implement lesson details
+        return Ok();
+    }
 }

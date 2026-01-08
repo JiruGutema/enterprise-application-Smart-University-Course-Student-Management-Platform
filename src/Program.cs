@@ -34,6 +34,7 @@ using SmartUniversity.Modules.Content.Infrastructure.Persistence;
 using Quartz;
 using SmartUniversity.Modules.Identity.Infrastructure.Outbox;
 using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Outbox;
+using SmartUniversity.Modules.Courses.Infrastructure.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -166,6 +167,7 @@ builder.Services.AddMediatR(typeof(Program).Assembly);
 // Register Identity Outbox Publisher
 builder.Services.AddScoped<IdentityOutboxPublisher>();
 builder.Services.AddScoped<GradingOutboxPublisher>();
+builder.Services.AddScoped<CourseOutboxPublisher>();
 
 // Quartz Configuration
 builder.Services.AddQuartz(q =>
@@ -184,6 +186,15 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(gradingJobKey)
         .WithIdentity("GradingOutboxPublishJob-trigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(10)
+            .RepeatForever()));
+
+    var courseJobKey = new JobKey("CourseOutboxPublishJob");
+    q.AddJob<CourseOutboxPublishJob>(opts => opts.WithIdentity(courseJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(courseJobKey)
+        .WithIdentity("CourseOutboxPublishJob-trigger")
         .WithSimpleSchedule(x => x
             .WithIntervalInSeconds(10)
             .RepeatForever()));

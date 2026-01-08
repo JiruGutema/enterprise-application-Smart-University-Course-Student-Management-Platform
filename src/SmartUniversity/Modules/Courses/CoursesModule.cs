@@ -6,6 +6,7 @@ using SmartUniversity.Modules.Courses.Application.Services;
 using SmartUniversity.Modules.Courses.Domain.Repositories;
 using SmartUniversity.Modules.Courses.Infrastructure.Persistence;
 using SmartUniversity.Modules.Courses.Infrastructure.Repositories;
+using SmartUniversity.Modules.Courses.Infrastructure.Outbox;
 
 namespace SmartUniversity.Modules.Courses;
 
@@ -17,14 +18,17 @@ public static class CoursesModule
         var connectionString = configuration.GetConnectionString("Default");
         services.AddDbContext<CourseDbContext>(options =>
         {
-            options.UseNpgsql(connectionString);
+            options.UseNpgsql(connectionString).AddInterceptors(new CourseOutboxInterceptor());
         });
 
         // 2️⃣ Register Repositories
         services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IModuleRepository, ModuleRepository>();
+        services.AddScoped<ILessonRepository, LessonRepository>();
 
         // 3️⃣ Register Services
         services.AddScoped<CourseService>();
+        services.AddScoped<CourseOutboxPublisher>();
 
         // 4️⃣ Register MediatR handlers (commands & queries)
         services.AddMediatR(typeof(CoursesModule).Assembly);
