@@ -133,6 +133,36 @@ namespace SmartUniversity.Migrations.CourseDb
                     b.ToTable("modules", "courses");
                 });
 
+            modelBuilder.Entity("SmartUniversity.Modules.Courses.Infrastructure.Outbox.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("outbox_messages", "courses");
+                });
+
             modelBuilder.Entity("SmartUniversity.Modules.Courses.Domain.Aggregates.Lesson", b =>
                 {
                     b.HasOne("SmartUniversity.Modules.Courses.Domain.Aggregates.Module", null)
