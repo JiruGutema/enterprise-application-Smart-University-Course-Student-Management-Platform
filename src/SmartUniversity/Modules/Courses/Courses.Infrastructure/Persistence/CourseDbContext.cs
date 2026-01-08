@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartUniversity.Modules.Courses.Domain.Aggregates;
 using SmartUniversity.Modules.Courses.Domain.ValueObjects;
 using SmartUniversity.Modules.Courses.Domain.Enums;
+using SmartUniversity.Modules.Courses.Infrastructure.Outbox;
 using System.Linq;
 
 namespace SmartUniversity.Modules.Courses.Infrastructure.Persistence;
@@ -13,6 +14,7 @@ public class CourseDbContext : DbContext
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Module> Modules => Set<Module>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,6 +59,16 @@ public class CourseDbContext : DbContext
             entity.Property(l => l.Content).HasMaxLength(5000);
             entity.Property(l => l.Order).IsRequired();
             entity.HasOne<Module>().WithMany().HasForeignKey("ModuleId");
+        });
+
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("outbox_messages", "courses");
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Type).IsRequired().HasMaxLength(500);
+            entity.Property(o => o.Data).IsRequired();
+            entity.Property(o => o.OccurredAt).IsRequired();
+            entity.Property(o => o.Error).HasMaxLength(1000);
         });
     }
 }
