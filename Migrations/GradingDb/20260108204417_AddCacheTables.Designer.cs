@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Persistence;
 namespace SmartUniversity.Migrations.GradingDb
 {
     [DbContext(typeof(GradingDbContext))]
-    partial class GradingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260108204417_AddCacheTables")]
+    partial class AddCacheTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -224,6 +224,7 @@ var app = builder.Build();
 
 // register event subscriptions
 app.SubscribeNotificationEvents();
+app.SubscribeGradingEvents();
 // app.SubscribeEnrollmentEvents();
 
 // Middleware pipeline
