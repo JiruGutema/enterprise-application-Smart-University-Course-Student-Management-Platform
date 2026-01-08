@@ -31,7 +31,6 @@ public sealed class IdentityOutboxPublisher
                 continue;
             }
 
-            // Skip messages that shouldn't be retried yet (exponential backoff)
             if (!message.ShouldRetry())
                 continue;
 
@@ -44,8 +43,7 @@ public sealed class IdentityOutboxPublisher
                 }
                 else
                 {
-                    var method = 
-                    elseetType()
+                    var method = _eventBus.GetType()
                         .GetMethod(nameof(IEventBus.PublishAsync))?
                         .MakeGenericMethod(eventMessage.GetType());
 
@@ -64,5 +62,8 @@ public sealed class IdentityOutboxPublisher
             {
                 message.MarkFailed(ex.Message);
             }
-  
-        }}}
+        }
+
+        await _db.SaveChangesAsync(ct);
+    }
+}
