@@ -43,6 +43,7 @@ namespace SmartUniversity.Modules.Enrollment.Application.Handlers
     return new EnrollmentDetailsResponse
     {
         EnrollmentId = enrollment.Id,
+          StudentId = enrollment.StudentId,
         EnrollmentDate = enrollment.EnrolledAt,
         Status = enrollment.Status.ToString(),
         ProgressPercentage = (double)enrollment.ProgressPercentage,

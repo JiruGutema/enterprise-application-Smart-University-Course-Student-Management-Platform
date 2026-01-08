@@ -81,12 +81,15 @@ namespace SmartUniversity.Migrations.EnrollmentDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("FailedReason")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("OccurredOn")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Payload")
+                    b.Property<byte[]>("Payload")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("ProcessedOn")
                         .HasColumnType("timestamp with time zone");
