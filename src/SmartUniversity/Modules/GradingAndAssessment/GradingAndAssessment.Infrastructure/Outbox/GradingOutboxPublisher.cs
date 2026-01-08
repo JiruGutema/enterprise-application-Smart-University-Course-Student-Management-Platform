@@ -1,23 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
+using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Interface;
 
-namespace SmartUniversity.Modules.Identity.Infrastructure.Outbox;
+namespace SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Outbox;
 
-public sealed class IdentityOutboxPublisher
+public class GradingOutboxPublisher
 {
-    private readonly UserDbContext _db;
+    private readonly GradingDbContext _context;
     private readonly IEventBus _eventBus;
 
-    public IdentityOutboxPublisher(UserDbContext db, IEventBus eventBus)
+    public GradingOutboxPublisher(GradingDbContext context, IEventBus eventBus)
     {
-        _db = db;
+        _context = context;
         _eventBus = eventBus;
     }
 
     public async Task PublishPendingAsync(CancellationToken ct = default)
     {
-        var messages = await _db.Set<OutboxMessage>()
+        var messages = await _context.OutboxMessages
             .Where(x => x.ProcessedAt == null)
             .OrderBy(x => x.OccurredAt)
             .Take(20)
@@ -30,7 +30,7 @@ public sealed class IdentityOutboxPublisher
                 var eventMessage = message.Deserialize();
                 if (eventMessage is null)
                 {
-                    message.MarkFailed("Deserialization failed (type unreachable?)");
+                    message.MarkFailed("Deserialization failed");
                 }
                 else
                 {
@@ -55,6 +55,6 @@ public sealed class IdentityOutboxPublisher
             }
         }
 
-        await _db.SaveChangesAsync(ct);
+        await _context.SaveChangesAsync(ct);
     }
 }

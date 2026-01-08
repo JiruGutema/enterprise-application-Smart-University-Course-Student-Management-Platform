@@ -1,8 +1,11 @@
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmartUniversity.Modules.Identity.Application.Commands;
 using SmartUniversity.Modules.Identity.Application.DTO;
 using SmartUniversity.Modules.Identity.Application.Interfaces;
+using SmartUniversity.Modules.Identity.Application.Queries;
 
 namespace SmartUniversity.Modules.Identity.Api.Controllers
 {
@@ -10,11 +13,13 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
     [Route("api/identity")]
     public class IdentityControllers : ControllerBase
     {
+        private readonly IMediator _mediator;
         private readonly IUserServices _userServices;
         private readonly ICookieService _cookieServices;
 
-        public IdentityControllers(IUserServices userServices, ICookieService cookieServices)
+        public IdentityControllers(IMediator mediator, IUserServices userServices, ICookieService cookieServices)
         {
+            _mediator = mediator;
             _userServices = userServices;
             _cookieServices = cookieServices;
         }
@@ -24,10 +29,10 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// done by the student itself.
         /// </summary>
         [HttpPost("auth/register")]
-        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
         public async Task<IActionResult> Register([FromBody] CreateUserRequest request)
         {
-            var user = await _userServices.RegisterAsync(request);
+            var command = new RegisterUserCommand(request.Email, request.FullName, request.Password);
+            var user = await _mediator.Send(command);
             return CreatedAtAction(nameof(Register), new { data = user });
         }
 
@@ -36,11 +41,10 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// given by the admin if the admin created the user account
         /// </summary>
         [HttpPost("auth/login")]
-        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var (user, refreshToken, accessToken) = await _userServices.LoginAsync(request);
-
+            var command = new LoginUserCommand(request.Email, request.Password);
+            var (user, refreshToken, accessToken) = await _mediator.Send(command);
             _cookieServices.SetLoginCookies(Response, accessToken, refreshToken);
             return Ok(new { data = user });
         }
@@ -72,13 +76,11 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// </summary>
         [Authorize]
         [HttpGet("me")]
-        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
         public async Task<IActionResult> Me()
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var role = User.FindFirstValue(ClaimTypes.Role);
-            UserResponse user = await _userServices.GetUserByIdAsync(Guid.Parse(userId!));
+            var query = new GetUserByIdQuery(Guid.Parse(userId!));
+            var user = await _mediator.Send(query);
             return Ok(new { data = user });
         }
 
@@ -101,12 +103,10 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpPost("{id}/deactivate")]
-        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
-        public async Task<IActionResult> DeactivateUserAccount(
-            [FromRoute] DeactivateUserAccountRequest request
-        )
+        public async Task<IActionResult> DeactivateUser([FromRoute] string id)
         {
-            UserResponse user = await _userServices.DeactivateUserAccountAsync(request);
+            var command = new DeactivateUserCommand(id);
+            var user = await _mediator.Send(command);
             return Ok(new { data = user });
         }
 
@@ -131,12 +131,11 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// </summary>
         [Authorize]
         [HttpGet("users")]
-        [ProducesResponseType(typeof(SearchUserResponse), 200)]
-        public async Task<IActionResult> SearchUserAsync([FromQuery] SearchUserRequest request)
+        public async Task<IActionResult> SearchUsers([FromQuery] SearchUserRequest request)
         {
-            SearchUserResponse data = await _userServices.SearchUsersAsync(request);
-
-            return Ok(new { data = data });
+            var query = new SearchUsersQuery(request.Query, request.Page, request.PageSize);
+            var data = await _mediator.Send(query);
+            return Ok(new { data });
         }
 
         /// <summary>
@@ -144,11 +143,11 @@ namespace SmartUniversity.Modules.Identity.Api.Controllers
         /// </summary>
         [Authorize]
         [HttpPut("profile")]
-        [ProducesResponseType(typeof(UserResponseWrapper), 200)]
-        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfile request)
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserProfile request)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            UserResponse user = await _userServices.UpdateUserAsync(request, userId);
+            var command = new UpdateUserCommand(userId!, request.Email, request.FullName, request.Password);
+            var user = await _mediator.Send(command);
             return Ok(new { data = user });
         }
 

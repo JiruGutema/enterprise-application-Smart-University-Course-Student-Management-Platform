@@ -1,8 +1,10 @@
+using MediatR;
 using SmartUniversity.Modules.Identity.Application.Interfaces;
 using SmartUniversity.Modules.Identity.Application.Services;
 using SmartUniversity.Modules.Identity.Domain.Repository;
 using SmartUniversity.Modules.Identity.Infrastructure.Persistence;
 using SmartUniversity.Modules.Identity.Infrastructure.Security;
+using System.Reflection;
 
 namespace SmartUniversity.Modules.Identity
 {
@@ -13,6 +15,8 @@ namespace SmartUniversity.Modules.Identity
             IConfiguration configuration
         )
         {
+            services.AddMediatR(typeof(IdentityModule).Assembly);
+            
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
