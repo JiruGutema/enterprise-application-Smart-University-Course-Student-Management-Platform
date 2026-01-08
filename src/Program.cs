@@ -200,7 +200,7 @@ builder.Services.AddQuartz(q =>
         .ForJob(enrollmentJobKey)
         .WithIdentity("EnrollmentOutboxPublishJob-trigger")
         .WithSimpleSchedule(x => x
-            .WithIntervalInSeconds(10) 
+            .WithIntervalInSeconds(10).RepeatForever()));
     var courseJobKey = new JobKey("CourseOutboxPublishJob");
     q.AddJob<CourseOutboxPublishJob>(opts => opts.WithIdentity(courseJobKey));
     q.AddTrigger(opts => opts
