@@ -20,3 +20,4 @@ public interface IMaterialRepository
     Task UpdateAsync(Material material);
     Task DeleteAsync(Material material);
 }
+
