@@ -1,65 +1,97 @@
 ```mermaid
 classDiagram
-    %% --- Shared Kernel ---
+    %% ==========================================
+    %% 1. SHARED KERNEL (Base Classes)
+    %% ==========================================
     class AggregateRoot {
         <<abstract>>
         -List~object~ _domainEvents
         +IReadOnlyCollection~object~ DomainEvents
         #AddDomainEvent(object domainEvent) void
         +ClearDomainEvents() void
+        +CheckRule(IBusinessRule rule) void
+    }
+
+    class Entity {
+        <<abstract>>
+        +Guid Id
+        +DateTime CreatedAt
+        +DateTime? UpdatedAt
+        #Entity()
     }
 
     class DomainException {
         <<abstract>>
         +int StatusCode
+        #DomainException(string message)
     }
 
-    %% --- Aggregate Root: Course ---
+    class CourseDomainException {
+        +CourseDomainException(string message)
+        +CourseDomainException(string message, Exception inner)
+    }
+
+    %% ==========================================
+    %% 2. DOMAIN LAYER (Aggregates & Entities)
+    %% ==========================================
     class Course {
-        +Guid Id
         +string Title
         +string Description
+        +string? ThumbnailUrl
         +Guid InstructorId
         +decimal Price
-        +string? ThumbnailUrl
+        +string Currency
+        +CourseLevel Level
+        +string Language
         +CourseStatus Status
-        +DateTime CreatedAt
         +DateTime? PublishedAt
         -List~CourseModule~ _modules
         +IReadOnlyCollection~CourseModule~ Modules
         -Course()
-        +Course(Guid id, string title, Guid instructorId, decimal price)
-        +UpdateDetails(string title, string description, decimal price) void
+        +Create(Guid id, string title, Guid instructorId, decimal price, string currency) static~Course~
+        +UpdateInfo(string title, string description, string thumbnail) void
+        +SetPricing(decimal price, string currency) void
         +AddModule(string title, int orderIndex) void
+        +UpdateModule(Guid moduleId, string newTitle) void
+        +RemoveModule(Guid moduleId) void
+        +AddLessonToModule(Guid moduleId, string title, string? content) void
         +Publish() void
         +Archive() void
-        +AddMaterialToLesson(Guid moduleId, Guid lessonId, Material material) void
+        +SubmitForReview() void
     }
 
-    %% --- Entities ---
     class CourseModule {
-        +Guid Id
         +Guid CourseId
         +string Title
         +int OrderIndex
         -List~Lesson~ _lessons
         +IReadOnlyCollection~Lesson~ Lessons
-        +AddLesson(string title, string? content) void
+        -CourseModule()
+        +CourseModule(Guid courseId, string title, int orderIndex)
+        +UpdateTitle(string newTitle) void
+        +Reorder(int newIndex) void
+        +AddLesson(string title, string? content, int orderIndex) void
+        +RemoveLesson(Guid lessonId) void
     }
 
     class Lesson {
-        +Guid Id
         +Guid ModuleId
         +string Title
         +string? TextContent
+        +string? VideoUrl
+        +bool IsPreviewable
         +int OrderIndex
         -List~Material~ _materials
         +IReadOnlyCollection~Material~ Materials
-        +AttachMaterial(Material material) void
+        -Lesson()
+        +Lesson(Guid moduleId, string title, int orderIndex)
+        +UpdateContent(string title, string? text, string? videoUrl) void
+        +TogglePreview(bool isPreviewable) void
+        +AttachMaterial(string fileName, string filePath, long size, MaterialType type) void
+        +RemoveMaterial(Guid materialId) void
     }
 
     class Material {
-        +Guid Id
         +Guid LessonId
         +string FileName
         +string FilePath
@@ -67,101 +99,97 @@ classDiagram
         +long FileSize
         +MaterialType Type
         +DateTime UploadedAt
-        +ReplaceFile(string newPath, string newName, long newSize) void
+        -Material()
+        +Material(Guid lessonId, string fileName, string path, long size, MaterialType type)
+        +UpdateFile(string newPath, string newName, long newSize) void
     }
 
-    %% --- Enums ---
+    %% ==========================================
+    %% 3. ENUMS & VALUE OBJECTS
+    %% ==========================================
     class CourseStatus {
         <<enumeration>>
         Draft = 0
-        Published = 1
-        Archived = 2
+        InReview = 1
+        Published = 2
+        Archived = 3
+    }
+
+    class CourseLevel {
+        <<enumeration>>
+        Beginner = 0
+        Intermediate = 1
+        Advanced = 2
     }
 
     class MaterialType {
         <<enumeration>>
-        Document = 0
+        PDF = 0
         Video = 1
         Audio = 2
+        SourceCode = 3
     }
 
-    %% --- Domain Events ---
+    %% ==========================================
+    %% 4. DOMAIN EVENTS
+    %% ==========================================
     class CourseCreatedEvent {
         +Guid CourseId
         +string Title
         +Guid InstructorId
-        +CourseCreatedEvent(Guid courseId, string title, Guid instructorId)
+        +DateTime OccurredOn
     }
 
     class CoursePublishedEvent {
         +Guid CourseId
         +DateTime PublishedAt
-        +CoursePublishedEvent(Guid courseId, DateTime publishedAt)
+        +DateTime OccurredOn
     }
 
     class ModuleAddedEvent {
         +Guid CourseId
         +Guid ModuleId
-        +string ModuleTitle
-        +ModuleAddedEvent(Guid courseId, Guid moduleId, string moduleTitle)
+        +string Title
+    }
+
+    class LessonContentUpdatedEvent {
+        +Guid CourseId
+        +Guid LessonId
+        +bool HasVideo
     }
 
     class MaterialUploadedEvent {
         +Guid CourseId
+        +Guid LessonId
         +Guid MaterialId
         +string FileName
-        +MaterialUploadedEvent(Guid courseId, Guid materialId, string fileName)
+        +long Size
     }
 
-    %% --- Repository Interface ---
+    %% ==========================================
+    %% 5. REPOSITORY INTERFACES
+    %% ==========================================
     class ICourseRepository {
         <<interface>>
         +GetByIdAsync(Guid id) Task~Course?~
         +GetByInstructorIdAsync(Guid instructorId) Task~List~Course~~
+        +ExistsAsync(Guid id) Task~bool~
         +AddAsync(Course course) Task
         +UpdateAsync(Course course) Task
         +DeleteAsync(Guid id) Task
-        +ExistsAsync(Guid id) Task~bool~
+        +GetCourseWithModulesAsync(Guid id) Task~Course?~
     }
 
     class IMaterialRepository {
         <<interface>>
         +GetByIdAsync(Guid id) Task~Material?~
         +AddAsync(Material material) Task
-        +DeleteAsync(Guid id) Task
+        +RemoveAsync(Material material) Task
     }
 
-    %% --- Infrastructure - Outbox ---
-    class OutboxMessage {
-        +Guid Id
-        +string Type
-        +string Payload
-        +DateTime OccurredAt
-        +DateTime? ProcessedAt
-        +int RetryCount
-        +string? Error
-        -OutboxMessage()
-        +FromEvent(object event)$ OutboxMessage
-        +MarkProcessed() void
-        +MarkFailed(string error) void
-    }
-
-    class ContentOutboxInterceptor {
-        +SavingChangesAsync(DbContextEventData eventData, InterceptionResult~int~ result) ValueTask~InterceptionResult~int~~
-    }
-
-    class ContentOutboxPublisher {
-        -ContentDbContext _db
-        -IEventBus _eventBus
-        +PublishPendingAsync(CancellationToken ct) Task
-    }
-
-    class ContentOutboxPublishJob {
-        -ContentOutboxPublisher _publisher
-        +Execute(IJobExecutionContext context) Task
-    }
-
-    %% --- Persistence ---
+    %% ==========================================
+    %% 6. INFRASTRUCTURE (Persistence & Outbox)
+    %% ==========================================
     class ContentDbContext {
         +DbSet~Course~ Courses
         +DbSet~CourseModule~ Modules
@@ -178,49 +206,94 @@ classDiagram
         +GetByIdAsync(Guid id) Task~Course?~
         +AddAsync(Course course) Task
         +UpdateAsync(Course course) Task
-        +DeleteAsync(Guid id) Task
     }
 
-    %% --- Relationships ---
-    Course --|> AggregateRoot : inherits
-    CourseModule --|> AggregateRoot : inherits_entity
-    Lesson --|> AggregateRoot : inherits_entity
-    
-    Course "1" *-- "many" CourseModule : contains
-    CourseModule "1" *-- "many" Lesson : contains
-    Lesson "1" *-- "many" Material : contains
+    class OutboxMessage {
+        +Guid Id
+        +string Type
+        +string Payload
+        +DateTime OccurredAt
+        +DateTime? ProcessedAt
+        +string? Error
+        +int RetryCount
+        -OutboxMessage()
+        +FromEvent(object domainEvent)$ OutboxMessage
+        +MarkAsProcessed() void
+        +MarkAsFailed(string error) void
+    }
 
+    class ContentOutboxInterceptor {
+        +SavingChangesAsync(DbContextEventData eventData, InterceptionResult~int~ result) ValueTask~InterceptionResult~int~~
+        -ConvertEventsToOutboxMessages(DbContext context) void
+    }
+
+    class ContentOutboxPublisher {
+        -ContentDbContext _db
+        -IEventBus _bus
+        +PublishPendingAsync(CancellationToken ct) Task
+    }
+
+    class ContentOutboxPublishJob {
+        -ContentOutboxPublisher _publisher
+        +Execute(IJobExecutionContext context) Task
+    }
+
+    %% ==========================================
+    %% 7. RELATIONSHIPS
+    %% ==========================================
+    
+    %% Inheritance
+    Course --|> AggregateRoot : inherits
+    CourseModule --|> Entity : inherits
+    Lesson --|> Entity : inherits
+    Material --|> Entity : inherits
+    CourseDomainException --|> DomainException : inherits
+
+    %% Composition (The Aggregate Structure)
+    Course "1" *-- "0..*" CourseModule : has modules
+    CourseModule "1" *-- "0..*" Lesson : has lessons
+    Lesson "1" *-- "0..*" Material : has attachments
+
+    %% Enum Usage
     Course --> CourseStatus : uses
+    Course --> CourseLevel : uses
     Material --> MaterialType : uses
 
-    Course ..> CourseCreatedEvent : creates
-    Course ..> CoursePublishedEvent : creates
-    Course ..> ModuleAddedEvent : creates
-    Material ..> MaterialUploadedEvent : creates
+    %% Events Generation
+    Course ..> CourseCreatedEvent : raises
+    Course ..> CoursePublishedEvent : raises
+    Course ..> ModuleAddedEvent : raises
+    Lesson ..> LessonContentUpdatedEvent : raises
+    Lesson ..> MaterialUploadedEvent : raises
 
+    %% Infrastructure Implementation
     CourseRepository ..|> ICourseRepository : implements
     CourseRepository --> ContentDbContext : uses
     ContentDbContext --> Course : manages
-    ContentDbContext --> OutboxMessage : manages
+    ContentDbContext --> OutboxMessage : stores
 
+    %% Outbox Mechanism
     ContentOutboxInterceptor --> OutboxMessage : creates
-    ContentOutboxInterceptor --> AggregateRoot : intercepts
-    ContentOutboxPublisher --> ContentDbContext : reads
+    ContentOutboxInterceptor --> AggregateRoot : reads_events
+    ContentOutboxPublisher --> ContentDbContext : reads_pending
     ContentOutboxPublishJob --> ContentOutboxPublisher : triggers
 
-    %% --- Styling (Exact Identity Match) ---
-    classDef aggregate fill:#e1f5fe
-    classDef valueObject fill:#f3e5f5
-    classDef domainEvent fill:#e8f5e8
-    classDef repository fill:#fff3e0
-    classDef infrastructure fill:#fce4ec
-    classDef exception fill:#ffebee
+    %% ==========================================
+    %% 8. STYLING (EXACT IDENTITY MATCH)
+    %% ==========================================
+    classDef aggregate fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef valueObject fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+    classDef domainEvent fill:#e8f5e8,stroke:#2e7d32,stroke-width:1px
+    classDef repository fill:#fff3e0,stroke:#ef6c00,stroke-width:1px
+    classDef infrastructure fill:#fce4ec,stroke:#c2185b,stroke-width:1px
+    classDef exception fill:#ffebee,stroke:#c62828,stroke-width:1px
 
-    %% Apply Styles
-    class Course,CourseModule,Lesson,Material aggregate
-    class CourseStatus,MaterialType valueObject
-    class CourseCreatedEvent,CoursePublishedEvent,ModuleAddedEvent,MaterialUploadedEvent domainEvent
+    %% Applying Styles
+    class Course aggregate
+    class CourseModule,Lesson,Material valueObject
+    class CourseStatus,CourseLevel,MaterialType valueObject
+    class CourseCreatedEvent,CoursePublishedEvent,ModuleAddedEvent,LessonContentUpdatedEvent,MaterialUploadedEvent domainEvent
     class ICourseRepository,IMaterialRepository,CourseRepository repository
-    class OutboxMessage,ContentOutboxInterceptor,ContentOutboxPublisher,ContentOutboxPublishJob,ContentDbContext infrastructure
-    class DomainException exception
+    class ContentDbContext,OutboxMessage,ContentOutboxInterceptor,ContentOutboxPublisher,ContentOutboxPublishJob infrastructure
+    class DomainException,CourseDomainException exception
 ```
