@@ -176,18 +176,4 @@ classDiagram
     classDef repository fill:#fff3e0,stroke:#ef6c00
     classDef infrastructure fill:#fce4ec,stroke:#c2185b
 
-    class Course aggregate
-    class Material entity
-    class Lesson entity
-    class CourseModule entity
-    class MaterialUploadedEvent domainEvent
-    class MaterialDeletedEvent domainEvent
-    class MaterialFileReplacedEvent domainEvent
-    class IMaterialRepository repository
-    class MaterialService repository
-    class OutboxMessage infrastructure
-    class ContentOutboxInterceptor infrastructure
-    class ContentOutboxPublishJob infrastructure
-    class ContentDbContext infrastructure
-
 ```
