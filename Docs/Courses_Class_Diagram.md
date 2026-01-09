@@ -1,7 +1,4 @@
-# Courses — Architecture (Domain + Application + Infrastructure)
-
-This file contains the Mermaid class diagram for the Courses module (domain, application, and infrastructure layers).
-
+# Courses 
 ```mermaid
 classDiagram
 
