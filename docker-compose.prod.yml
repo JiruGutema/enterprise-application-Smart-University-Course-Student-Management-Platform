@@ -1,0 +1,128 @@
+# Production docker-compose configuration
+# Use this for production deployments with optimized settings
+
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: smart-university-db-prod
+    environment:
+      POSTGRES_DB: smart_university
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - smart-university-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d smart_university"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Don't expose ports in production - only internal access
+    expose:
+      - "5432"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: smart-university-rabbitmq-prod
+    environment:
+      RABBITMQ_DEFAULT_USER_FILE: /run/secrets/rabbitmq_user
+      RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/rabbitmq_password
+    secrets:
+      - rabbitmq_user
+      - rabbitmq_password
+    volumes:
+      - rabbitmq_prod_data:/var/lib/rabbitmq
+    networks:
+      - smart-university-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Only expose management UI in production, AMQP is internal
+    ports:
+      - "15672:15672"
+    expose:
+      - "5672"
+
+  smart-university-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-university-app-prod
+    environment:
+      ConnectionStrings__Default: "Host=postgres;Database=smart_university;Username=postgres;Password_File=/run/secrets/db_password"
+      JWT__Secret_File: "/run/secrets/jwt_secret"
+      JWT__Issuer: "SmartUniversity"
+      JWT__Audience: "SmartUniversityUsers"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Username_File: "/run/secrets/rabbitmq_user"
+      RabbitMQ__Password_File: "/run/secrets/rabbitmq_password"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:8080"
+    secrets:
+      - db_password
+      - jwt_secret
+      - rabbitmq_user
+      - rabbitmq_password
+      - smtp_user
+      - smtp_password
+      - openai_api_key
+    ports:
+      - "80:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - smart-university-prod-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  rabbitmq_user:
+    file: ./secrets/rabbitmq_user.txt
+  rabbitmq_password:
+    file: ./secrets/rabbitmq_password.txt
+  smtp_user:
+    file: ./secrets/smtp_user.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt
+
+volumes:
+  postgres_prod_data:
+    driver: local
+  rabbitmq_prod_data:
+    driver: local
+
+networks:
+  smart-university-prod-network:
+    driver: bridge

@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: smart-university-db
+    environment:
+      POSTGRES_DB: smart_university
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: smartuni2024
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - smart-university-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d smart_university"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: smart-university-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"    # AMQP port
+      - "15672:15672"  # Management UI port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - smart-university-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Smart University Application
+  smart-university-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-university-app
+    environment:
+      # Database Configuration
+      ConnectionStrings__Default: "Host=postgres;Database=smart_university;Username=postgres;Password=smartuni2024"
+      
+      # JWT Configuration
+      JWT__Secret: "Kj82Jf9$QmLxP7Z@W2#E8R!dVt4s0A1BAddisAbabaUniversity"
+      JWT__Issuer: "SmartUniversity"
+      JWT__Audience: "SmartUniversityUsers"
+      
+      # SMTP Configuration (Update with your SMTP settings)
+      SMTP__User: "your-email@gmail.com"
+      SMTP__Password: "your-app-password"
+      SMTP__Host: "smtp.gmail.com"
+      SMTP__Port: "587"
+      
+      # RabbitMQ Configuration
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Username: "smartuni"
+      RabbitMQ__Password: "smartuni2024"
+      
+      # OpenAI Configuration (Update with your API key)
+      OpenAi__ApiKey: "your-openai-api-key"
+      
+      # ASP.NET Core Configuration
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://+:8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - smart-university-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  smart-university-network:
+    driver: bridge
