@@ -2,7 +2,7 @@ using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Entities;
 
-namespace SmartUniversity.Modules.Notification.Application.Events
+namespace SmartUniversity.Modules.Notification.Application.EventHandlers
 {
     public class ResetPasswordRequestedEventHandler
     {

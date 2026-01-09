@@ -153,6 +153,11 @@ namespace SmartUniversity.Migrations.CourseDb
                     b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("RetryCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(500)

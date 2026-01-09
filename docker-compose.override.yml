@@ -1,0 +1,25 @@
+# Development override for docker-compose
+# This file is automatically loaded by docker-compose and provides development-specific settings
+
+version: '3.8'
+
+services:
+  smart-university-app:
+    environment:
+      # Override for development
+      ASPNETCORE_ENVIRONMENT: "Development"
+    volumes:
+      # Mount source code for hot reload during development
+      - ./src:/app/src:ro
+      - ./appsettings.Development.json:/app/appsettings.Development.json:ro
+    ports:
+      - "5000:8080"  # Different port for development
+
+  postgres:
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts with local PostgreSQL
+
+  rabbitmq:
+    ports:
+      - "5673:5672"   # Different AMQP port
+      - "15673:15672" # Different management UI port

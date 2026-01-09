@@ -1,19 +1,19 @@
-using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Entities;
+using SmartUniversity.Modules.Identity.Domain.Events;
 
-namespace SmartUniversity.Modules.Notification.Application.Events
+namespace SmartUniversity.Modules.Notification.Application.EventHandlers
 {
-    public class PasswordChangedEventHandler
+    public class UserLoggedInEventHandler
     {
-        private readonly ILogger<PasswordChangedEventHandler> _logger;
+        private readonly ILogger<UserLoggedInEventHandler> _logger;
         private readonly IEmailServices _emailServices;
         private readonly INotificationServices _notificationServices;
 
-        public PasswordChangedEventHandler(
+        public UserLoggedInEventHandler(
             IEmailServices emailServices,
             INotificationServices notificationServices,
-            ILogger<PasswordChangedEventHandler> logger
+            ILogger<UserLoggedInEventHandler> logger
         )
         {
             _emailServices = emailServices;
@@ -21,15 +21,15 @@ namespace SmartUniversity.Modules.Notification.Application.Events
             _logger = logger;
         }
 
-        public async Task HandleAsync(PasswordChangedEvent evt)
+        public async Task HandleAsync(UserLoggedInEvent evt)
         {
-            _logger.LogInformation("PasswordChangedEvent received for {Email}", evt.Email);
+            _logger.LogInformation("UserLoggedInEvent received for {Email}", evt.Email);
 
-            await _emailServices.SendPasswordChangedEmailAsync(evt);
-            string title = "Password Reset Successful";
+            await _emailServices.SendLoginDetectedEmailAsync(evt);
+            string title = "Registration Successful";
 
             string message =
-                $"Your password has been changed. If it was not you, please contact the registrar as sooon as possible";
+                $"Login detected from {evt.Location} at {evt.LoginTime:yyyy-MM-dd HH:mm:ss}. If this wasn't you, please secure your account.";
             Notifications notification = new Notifications(
                 evt.UserId,
                 title,

@@ -1,19 +1,19 @@
+using SmartUniversity.Modules.Identity.Domain.Events;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Domain.Entities;
-using SmartUniversity.Modules.Identity.Domain.Events;
 
-namespace SmartUniversity.Modules.Notification.Application.Events
+namespace SmartUniversity.Modules.Notification.Application.EventHandlers
 {
-    public class UserLoggedInEventHandler
+    public class UserRegisteredEventHandler
     {
-        private readonly ILogger<UserLoggedInEventHandler> _logger;
+        private readonly ILogger<UserRegisteredEventHandler> _logger;
         private readonly IEmailServices _emailServices;
         private readonly INotificationServices _notificationServices;
 
-        public UserLoggedInEventHandler(
+        public UserRegisteredEventHandler(
             IEmailServices emailServices,
             INotificationServices notificationServices,
-            ILogger<UserLoggedInEventHandler> logger
+            ILogger<UserRegisteredEventHandler> logger
         )
         {
             _emailServices = emailServices;
@@ -21,15 +21,14 @@ namespace SmartUniversity.Modules.Notification.Application.Events
             _logger = logger;
         }
 
-        public async Task HandleAsync(UserLoggedInEvent evt)
+        public async Task HandleAsync(UserRegisteredEvent evt)
         {
-            _logger.LogInformation("UserLoggedInEvent received for {Email}", evt.Email);
+            _logger.LogInformation("UserRegisteredEvent received for {Email}", evt.Email);
 
-            await _emailServices.SendLoginDetectedEmailAsync(evt);
+            await _emailServices.SendWelcomeEmailAsync(evt);
             string title = "Registration Successful";
-
             string message =
-                $"Login detected from {evt.Location} at {evt.LoginTime:yyyy-MM-dd HH:mm:ss}. If this wasn't you, please secure your account.";
+                "Welcome! Your registration has been completed successfully. You can now access all features.";
             Notifications notification = new Notifications(
                 evt.UserId,
                 title,

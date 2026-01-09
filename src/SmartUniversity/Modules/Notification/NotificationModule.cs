@@ -1,5 +1,7 @@
 using SmartUniversity.Modules.Identity.Domain.Events;
-using SmartUniversity.Modules.Notification.Application.Events;
+using SmartUniversity.Modules.Courses.Domain.Events;
+using SmartUniversity.Modules.Enrollment.Domain.Events;
+using SmartUniversity.Modules.Notification.Application.EventHandlers;
 using SmartUniversity.Modules.Notification.Application.Interfaces;
 using SmartUniversity.Modules.Notification.Application.Services;
 using SmartUniversity.Modules.Notification.Domain.Interfaces;
@@ -33,6 +35,20 @@ public static class NotificationModule
         services.AddScoped<UserLoggedInEventHandler>();
         services.AddScoped<PasswordChangedEventHandler>();
         services.AddScoped<ResetPasswordRequestedEventHandler>();
+        
+        // Course event handlers
+        services.AddScoped<CourseCreatedEventHandler>();
+        services.AddScoped<CoursePublishedEventHandler>();
+        services.AddScoped<CourseDeletedEventHandler>();
+        
+        // Enrollment event handlers
+        services.AddScoped<StudentEnrolledEventHandler>();
+        services.AddScoped<StudentDroppedCourseEventHandler>();
+        services.AddScoped<EnrollmentStatusChangedEventHandler>();
+        
+        // Placeholder handlers for future events
+        services.AddScoped<GradingEventHandler>();
+        services.AddScoped<AIEventHandler>();
 
         return services;
     }
@@ -40,7 +56,8 @@ public static class NotificationModule
     public static void SubscribeNotificationEvents(this IApplicationBuilder app)
     {
         var bus = app.ApplicationServices.GetRequiredService<IEventBus>();
-        // subscibe register event
+        
+        // Subscribe to Identity events
         bus.Subscribe<UserRegisteredEvent>(async evt =>
         {
             using var scope = app.ApplicationServices.CreateScope();
@@ -48,7 +65,6 @@ public static class NotificationModule
             await handler.HandleAsync(evt);
         });
 
-        // subscibe login event
         bus.Subscribe<UserLoggedInEvent>(async evt =>
         {
             using var scope = app.ApplicationServices.CreateScope();
@@ -56,7 +72,6 @@ public static class NotificationModule
             await handler.HandleAsync(evt);
         });
 
-        // subscibe login event
         bus.Subscribe<PasswordChangedEvent>(async evt =>
         {
             using var scope = app.ApplicationServices.CreateScope();
@@ -64,12 +79,54 @@ public static class NotificationModule
             await handler.HandleAsync(evt);
         });
 
-        // subscibe login event
         bus.Subscribe<ResetPasswordRequestedEvent>(async evt =>
         {
             using var scope = app.ApplicationServices.CreateScope();
-            var handler =
-                scope.ServiceProvider.GetRequiredService<ResetPasswordRequestedEventHandler>();
+            var handler = scope.ServiceProvider.GetRequiredService<ResetPasswordRequestedEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        // Subscribe to Course events
+        bus.Subscribe<CourseCreatedEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<CourseCreatedEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        bus.Subscribe<CoursePublishedEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<CoursePublishedEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        bus.Subscribe<CourseDeletedEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<CourseDeletedEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        // Subscribe to Enrollment events
+        bus.Subscribe<StudentEnrolledEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<StudentEnrolledEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        bus.Subscribe<StudentDroppedCourseEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<StudentDroppedCourseEventHandler>();
+            await handler.HandleAsync(evt);
+        });
+
+        bus.Subscribe<EnrollmentStatusChangedEvent>(async evt =>
+        {
+            using var scope = app.ApplicationServices.CreateScope();
+            var handler = scope.ServiceProvider.GetRequiredService<EnrollmentStatusChangedEventHandler>();
             await handler.HandleAsync(evt);
         });
     }
