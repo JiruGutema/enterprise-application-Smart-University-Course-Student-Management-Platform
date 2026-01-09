@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using  Swashbuckle.AspNetCore;
 using Microsoft.OpenApi;
 using Microsoft.IdentityModel.Tokens;
+using SmartUniversity.Modules.Enrollment;
 using SmartUniversity.Modules.Enrollment.Api;
 using SmartUniversity.Modules.Enrollment.Application;
 using SmartUniversity.Modules.Enrollment.Application.Commands;
@@ -219,13 +220,15 @@ builder.Services.AddNotificationModule(builder.Configuration);
 builder.Services.AddAIModule(builder.Configuration);
 builder.Services.AddCoursesModule(builder.Configuration);
 builder.Services.AddGradingAndAssessmentModule(builder.Configuration);
+builder.Services.AddEnrollmentModule(builder.Configuration);
+
 
 var app = builder.Build();
 
 // register event subscriptions
 app.SubscribeNotificationEvents();
 app.SubscribeGradingEvents();
-// app.SubscribeEnrollmentEvents();
+app.SubscribeEnrollmentEvents();
 
 // Middleware pipeline
 if (app.Environment.IsDevelopment())

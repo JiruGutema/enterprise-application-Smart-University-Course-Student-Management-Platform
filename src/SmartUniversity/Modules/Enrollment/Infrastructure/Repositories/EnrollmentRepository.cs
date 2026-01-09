@@ -163,6 +163,32 @@ public async Task SaveAsync(SmartUniversity.Modules.Enrollment.Domain.Aggregates
     await _context.SaveChangesAsync(ct);
 }
 
+ public async Task<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment?> GetByIdAsync(
+        Guid enrollmentId,
+        CancellationToken ct)
+    {
+        return await _context.Enrollments
+            .FirstOrDefaultAsync(e => e.Id == enrollmentId, ct);
+    }
+
+
+public async Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> GetByStudentIdAsync(
+    Guid studentId,
+    CancellationToken ct)
+{
+    return await _context.Enrollments
+        .Where(e => e.StudentId == studentId)
+        .ToListAsync(ct);
+}
+
+public async Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> GetByCourseIdAsync(
+    Guid courseId,
+    CancellationToken ct)
+{
+    return await _context.Enrollments
+        .Where(e => e.CourseId == courseId)
+        .ToListAsync(ct);
+}
 
 
     }

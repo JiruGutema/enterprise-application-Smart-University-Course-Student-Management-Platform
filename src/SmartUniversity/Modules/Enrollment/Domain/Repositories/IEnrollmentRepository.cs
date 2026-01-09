@@ -46,5 +46,16 @@ Task<int> AdminCountAsync(
 
 Task SaveAsync(SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment enrollment, CancellationToken ct);
 
+  Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> GetByStudentIdAsync(
+        Guid studentId,
+        CancellationToken ct
+    );
+
+    Task<List<SmartUniversity.Modules.Enrollment.Domain.Aggregates.Enrollment>> GetByCourseIdAsync(
+        Guid courseId,
+        CancellationToken ct
+    );
+    
+
     }
 }
