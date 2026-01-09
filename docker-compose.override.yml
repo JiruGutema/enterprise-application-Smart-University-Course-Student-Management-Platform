@@ -1,7 +1,7 @@
 # Development override for docker-compose
 # This file is automatically loaded by docker-compose and provides development-specific settings
 
-version: '3.8'
+
 
 services:
   smart-university-app:
