@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using SmartUniversity.Modules.Courses.Application.Commands;
 using SmartUniversity.Modules.Courses.Application.Queries;
 using SmartUniversity.Modules.Courses.Application.DTOs;
 
 namespace SmartUniversity.Modules.Courses.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/courses")]
 [Tags("Courses Context")]
@@ -20,6 +22,7 @@ public class CoursesController : ControllerBase
 
     // POST /api/courses
     [HttpPost]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest request)
     {
         var courseId = await _mediator.Send(new CreateCourseCommand(
@@ -72,6 +75,7 @@ public class CoursesController : ControllerBase
 
     // PUT /api/courses/{courseId}
     [HttpPut("{courseId}")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> UpdateCourse(Guid courseId, [FromBody] UpdateCourseRequest request)
     {
         await _mediator.Send(new UpdateCourseCommand(
@@ -90,6 +94,7 @@ public class CoursesController : ControllerBase
 
     // PATCH /api/courses/{courseId}/publish
     [HttpPatch("{courseId}/publish")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> Publish(Guid courseId)
     {
         await _mediator.Send(new PublishCourseCommand(courseId));
@@ -98,6 +103,7 @@ public class CoursesController : ControllerBase
 
     // PATCH /api/courses/{courseId}/unpublish
     [HttpPatch("{courseId}/unpublish")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> Unpublish(Guid courseId)
     {
         await _mediator.Send(new UnpublishCourseCommand(courseId));
@@ -106,6 +112,7 @@ public class CoursesController : ControllerBase
 
     // DELETE /api/courses/{courseId}
     [HttpDelete("{courseId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCourse(Guid courseId)
     {
         await _mediator.Send(new DeleteCourseCommand(courseId));
@@ -129,6 +136,7 @@ public class CoursesController : ControllerBase
 
     // POST /api/courses/{courseId}/modules
     [HttpPost("{courseId}/modules")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> CreateModule(Guid courseId, [FromBody] CreateModuleRequest request)
     {
         var moduleId = await _mediator.Send(new CreateModuleCommand(courseId, request.Name, request.Description, request.Order));
@@ -137,6 +145,7 @@ public class CoursesController : ControllerBase
 
     // PUT /api/courses/{courseId}/modules/{moduleId}
     [HttpPut("{courseId}/modules/{moduleId}")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> UpdateModule(Guid courseId, Guid moduleId, [FromBody] UpdateModuleRequest request)
     {
         await _mediator.Send(new UpdateModuleCommand(moduleId, request.Name, request.Description, request.Order));
@@ -145,6 +154,7 @@ public class CoursesController : ControllerBase
 
     // DELETE /api/courses/{courseId}/modules/{moduleId}
     [HttpDelete("{courseId}/modules/{moduleId}")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> DeleteModule(Guid courseId, Guid moduleId)
     {
         await _mediator.Send(new DeleteModuleCommand(moduleId));
@@ -153,6 +163,7 @@ public class CoursesController : ControllerBase
 
     // POST /api/courses/{courseId}/modules/{moduleId}/lessons
     [HttpPost("{courseId}/modules/{moduleId}/lessons")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> CreateLesson(Guid courseId, Guid moduleId, [FromBody] CreateLessonRequest request)
     {
         var lessonId = await _mediator.Send(new CreateLessonCommand(moduleId, request.Name, request.Content, request.Order));
@@ -161,6 +172,7 @@ public class CoursesController : ControllerBase
 
     // PUT /api/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}
     [HttpPut("{courseId}/modules/{moduleId}/lessons/{lessonId}")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> UpdateLesson(Guid courseId, Guid moduleId, Guid lessonId, [FromBody] UpdateLessonRequest request)
     {
         await _mediator.Send(new UpdateLessonCommand(lessonId, request.Name, request.Content, request.Order));
@@ -169,6 +181,7 @@ public class CoursesController : ControllerBase
 
     // DELETE /api/courses/{courseId}/modules/{moduleId}/lessons/{lessonId}
     [HttpDelete("{courseId}/modules/{moduleId}/lessons/{lessonId}")]
+    [Authorize(Roles = "Admin,Instructor")]
     public async Task<IActionResult> DeleteLesson(Guid courseId, Guid moduleId, Guid lessonId)
     {
         await _mediator.Send(new DeleteLessonCommand(lessonId));
