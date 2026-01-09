@@ -27,14 +27,15 @@ using SmartUniversity.Modules.AI.Infrastructure.Persistence;
 using SmartUniversity.Shared.Kernel.Infrastructure.Messaging;
 using SmartUniversity.Shared.Kernel.Interface;
 using SmartUniversity.Shared.Middleware;
-using SmartUniversity.Modules.Content.Api;
-using SmartUniversity.Modules.Content.Application.Services;
+using SmartUniversity.Modules.Content.API;
 using SmartUniversity.Modules.Content.Domain.Repositories;
+using SmartUniversity.Modules.Content.Infrastructure.Repositories;
 using SmartUniversity.Modules.Content.Infrastructure.Persistence;
 using Quartz;
 using SmartUniversity.Modules.Identity.Infrastructure.Outbox;
 using SmartUniversity.Modules.GradingAndAssessment.Infrastructure.Outbox;
 using SmartUniversity.Modules.Courses.Infrastructure.Outbox;
+using SmartUniversity.Modules.Content.Infrastructure.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -141,7 +142,6 @@ builder.Services.AddDbContext<ContentDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
-builder.Services.AddScoped<MaterialService>();
 
 // RabbitMQ Configuration
 builder.Services.AddSingleton(
@@ -157,19 +157,22 @@ builder.Services.AddSingleton<IEventBus, RabbitMqEventBus>();
 // Enrollment DbContext
 builder.Services.AddDbContext<EnrollmentDbContext>(options =>
 {
-    options.UseNpgsql(connectionString).AddInterceptors(new OutboxInterceptor());
+    options.UseNpgsql(connectionString).AddInterceptors(new SmartUniversity.Modules.Enrollment.Infrastructure.Outbox.OutboxInterceptor());
 });
 
 builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<SmartUniversity.Modules.Enrollment.Application.IUnitOfWork, SmartUniversity.Modules.Enrollment.Infrastructure.Persistence.UnitOfWork>();
 builder.Services.AddMediatR(typeof(Program).Assembly);
+
+// Register Content module handlers
+builder.Services.AddMediatR(typeof(SmartUniversity.Modules.Content.Application.Handlers.UploadMaterialHandler).Assembly);
 
 // Register Identity Outbox Publisher
 builder.Services.AddScoped<IdentityOutboxPublisher>();
 builder.Services.AddScoped<GradingOutboxPublisher>();
 builder.Services.AddScoped<EnrollmentOutboxPublisher>();
-
 builder.Services.AddScoped<CourseOutboxPublisher>();
+builder.Services.AddScoped<ContentOutboxPublisher>();
 
 // Quartz Configuration
 builder.Services.AddQuartz(q =>
@@ -209,6 +212,15 @@ builder.Services.AddQuartz(q =>
         .WithSimpleSchedule(x => x
             .WithIntervalInSeconds(10)
             .RepeatForever()));
+
+    var contentJobKey = new JobKey("ContentOutboxPublishJob");
+    q.AddJob<ContentOutboxPublishJob>(opts => opts.WithIdentity(contentJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(contentJobKey)
+        .WithIdentity("ContentOutboxPublishJob-trigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(10)
+            .RepeatForever()));
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
@@ -239,6 +251,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapContentEndpoints();
 
 app.Run();
