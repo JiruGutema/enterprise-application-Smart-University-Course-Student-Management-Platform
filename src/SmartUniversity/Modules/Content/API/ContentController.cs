@@ -3,6 +3,7 @@ using SmartUniversity.Modules.Content.API.DTOs;
 using SmartUniversity.Modules.Content.Application.Commands;
 using SmartUniversity.Modules.Content.Application.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SmartUniversity.Modules.Content.API;
 
@@ -17,7 +18,9 @@ public class ContentController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize(Roles = "Instructor,Admin")]
     [HttpPost("courses/{courseId}/materials")]
+
     public async Task<IActionResult> UploadMaterial(Guid courseId, [FromForm] MaterialUploadRequest request)
     {
         var command = new UploadMaterialCommand
@@ -33,16 +36,16 @@ public class ContentController : ControllerBase
         var result = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetMaterialById), new { materialId = result.MaterialId }, result);
     }
-
+    [Authorize]
     [HttpGet("courses/{courseId}/materials")]
     public async Task<IActionResult> GetMaterialsByCourse(
-        Guid courseId,
-        [FromQuery] Guid? lessonId,
-        [FromQuery] string? fileType,
-        [FromQuery] string? search,
-        [FromQuery] string? sort,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20)
+         Guid courseId,
+         [FromQuery] Guid? lessonId,
+         [FromQuery] string? fileType,
+         [FromQuery] string? search,
+         [FromQuery] string? sort,
+         [FromQuery] int page = 1,
+         [FromQuery] int pageSize = 20)
     {
         var query = new GetMaterialsByCourseQuery
         {
@@ -58,32 +61,33 @@ public class ContentController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-
+    [Authorize]
     [HttpGet("materials/{materialId}")]
     public async Task<IActionResult> GetMaterialById(Guid materialId)
     {
         var query = new GetMaterialByIdQuery { MaterialId = materialId };
         var result = await _mediator.Send(query);
-        
+
         if (result == null)
             return NotFound();
-            
+
         return Ok(result);
     }
 
+    [Authorize]
     [HttpGet("materials/{materialId}/download")]
     public async Task<IActionResult> DownloadMaterial(Guid materialId)
     {
         var query = new GetMaterialByIdQuery { MaterialId = materialId };
         var material = await _mediator.Send(query);
-        
+
         if (material == null || !System.IO.File.Exists(material.FilePath))
             return NotFound("File not found");
-            
+
         var fileStream = System.IO.File.OpenRead(material.FilePath);
         return File(fileStream, "application/octet-stream", material.FileName);
     }
-
+    [Authorize(Roles = "Instructor,Admin")]
     [HttpPut("materials/{materialId}")]
     public async Task<IActionResult> UpdateMaterial(Guid materialId, [FromBody] UpdateMaterialRequest request)
     {
@@ -96,22 +100,22 @@ public class ContentController : ControllerBase
         };
 
         var result = await _mediator.Send(command);
-        
+
         if (result == null)
             return NotFound();
-            
+
         return Ok(result);
     }
-
+    [Authorize(Roles = "Instructor,Admin")]
     [HttpDelete("materials/{materialId}")]
     public async Task<IActionResult> DeleteMaterial(Guid materialId)
     {
         var command = new DeleteMaterialCommand { MaterialId = materialId };
         var result = await _mediator.Send(command);
-        
+
         if (!result)
             return NotFound();
-            
+
         return NoContent();
     }
 }
