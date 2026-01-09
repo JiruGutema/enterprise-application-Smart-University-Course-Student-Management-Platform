@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     %% Shared Kernel
     class AggregateRoot {
@@ -161,3 +162,5 @@ classDiagram
     classDef repository fill:#fff3e0
     classDef infrastructure fill:#fce4ec
     classDef exception fill:#ffebee
+
+```
