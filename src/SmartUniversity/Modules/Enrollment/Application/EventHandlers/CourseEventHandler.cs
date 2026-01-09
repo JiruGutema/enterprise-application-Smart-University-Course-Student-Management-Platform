@@ -27,13 +27,11 @@ namespace SmartUniversity.Modules.Enrollment.Application.EventHandlers
 
             foreach (var enrollment in enrollments)
             {
-                enrollment.Drop(); // domain behavior only
+                enrollment.Drop(); 
             }
 
-            // ✅ THIS is the only persistence boundary
             await _unitOfWork.CommitAsync(CancellationToken.None);
         }
 
-        // other handlers follow same pattern
     }
 }
