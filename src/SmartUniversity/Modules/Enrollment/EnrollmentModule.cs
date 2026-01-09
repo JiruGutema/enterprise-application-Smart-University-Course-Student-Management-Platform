@@ -16,9 +16,7 @@ namespace SmartUniversity.Modules.Enrollment;
 
 public static class EnrollmentModule
 {
-    // ----------------------------
-    // Dependency Registration
-    // ----------------------------
+
     public static IServiceCollection AddEnrollmentModule(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -32,9 +30,7 @@ public static class EnrollmentModule
         return services;
     }
 
-    // ----------------------------
-    // Event Subscriptions
-    // ----------------------------
+  
     public static void SubscribeEnrollmentEvents(this IApplicationBuilder app)
     {
         var bus = app.ApplicationServices.GetRequiredService<IEventBus>();
