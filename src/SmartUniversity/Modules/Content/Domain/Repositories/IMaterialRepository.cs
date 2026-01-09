@@ -1,4 +1,4 @@
-using SmartUniversity.Modules.Content.Domain.Entities;
+using SmartUniversity.Modules.Content.Domain.Aggregates;
 
 namespace SmartUniversity.Modules.Content.Domain.Repositories;
 

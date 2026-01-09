@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace SmartUniversity.Modules.Content.Application.DTOs;
+namespace SmartUniversity.Modules.Content.API.DTOs;
 
 public class MaterialDto
 {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SmartUniversity.Modules.Content.Domain.Entities;
+namespace SmartUniversity.Modules.Content.Domain.Aggregates;
 
 [Table("materials", Schema = "content")]
 public class Material

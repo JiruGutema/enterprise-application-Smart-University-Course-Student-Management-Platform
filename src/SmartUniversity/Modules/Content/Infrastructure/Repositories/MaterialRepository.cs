@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using SmartUniversity.Modules.Content.Domain.Entities;
+using SmartUniversity.Modules.Content.Domain.Aggregates;
 using SmartUniversity.Modules.Content.Domain.Repositories;
+using SmartUniversity.Modules.Content.Infrastructure.Persistence;
 
-namespace SmartUniversity.Modules.Content.Infrastructure.Persistence;
+namespace SmartUniversity.Modules.Content.Infrastructure.Repositories;
 
 public class MaterialRepository : IMaterialRepository
 {

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using SmartUniversity.Modules.Content.Domain.Entities;
+using SmartUniversity.Modules.Content.Domain.Aggregates;
+using SmartUniversity.Modules.Content.Infrastructure.Outbox;
 
 namespace SmartUniversity.Modules.Content.Infrastructure.Persistence;
 
@@ -9,6 +10,7 @@ public class ContentDbContext : DbContext
         : base(options) { }
 
     public DbSet<Material> Materials => Set<Material>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,6 +22,15 @@ public class ContentDbContext : DbContext
             entity.Property(x => x.FileName).IsRequired();
             entity.Property(x => x.FilePath).IsRequired();
             entity.Property(x => x.FileType).IsRequired();
+        });
+
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("outbox_messages", "content");
+            entity.HasKey(x => x.Id);
+            
+            entity.Property(x => x.Type).IsRequired();
+            entity.Property(x => x.Content).IsRequired();
         });
     }
 }
