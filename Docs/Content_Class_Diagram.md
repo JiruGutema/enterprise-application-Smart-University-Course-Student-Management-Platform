@@ -1,4 +1,5 @@
-``` mermaid classDiagram
+```mermaid
+classDiagram
     %% =========================================================
     %% 1. SHARED KERNEL
     %% =========================================================
@@ -187,4 +188,6 @@
     class OutboxMessage infrastructure
     class ContentOutboxInterceptor infrastructure
     class ContentOutboxPublishJob infrastructure
-    class ContentDbContext infrastructure ```
+    class ContentDbContext infrastructure
+
+```
